@@ -1,11 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { Users, ShoppingCart, DollarSign, TrendingUp, LogOut, Plus } from "lucide-react";
+import { Users, ShoppingCart, DollarSign, TrendingUp, Plus, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const fetchDashboardStats = async () => {
   const userId = (await supabase.auth.getUser()).data.user?.id;
@@ -26,178 +27,172 @@ const fetchDashboardStats = async () => {
 };
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
     enabled: !!user
   });
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
   const formatCurrency = (value: number) => 
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-4">
-        <header className="flex justify-between items-center mb-6">
-          <Skeleton className="h-8 w-32" />
-          <Skeleton className="h-10 w-20" />
-        </header>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <Skeleton className="h-6 w-20" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-8 w-24" />
-              </CardContent>
-            </Card>
-          ))}
+      <MobileLayout title="SwiftSale">
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="pb-2">
+                  <Skeleton className="h-4 w-16" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-6 w-20" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full" />
-          ))}
-        </div>
-      </div>
+      </MobileLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card border-b px-4 py-3 flex justify-between items-center">
-        <h1 className="text-2xl font-bold">SwiftSale</h1>
-        <Button variant="ghost" size="sm" onClick={handleSignOut}>
-          <LogOut className="h-4 w-4" />
-          Sair
-        </Button>
-      </header>
+    <MobileLayout title="SwiftSale">
+      <div className="p-4 pb-20 space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card className="animate-scale-in">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground flex items-center">
+                <Users className="h-3 w-3 mr-1" />
+                Clientes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">{stats?.totalClients || 0}</div>
+            </CardContent>
+          </Card>
 
-      <main className="p-4">
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Dashboard</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Clientes</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats?.totalClients || 0}</div>
-              </CardContent>
-            </Card>
+          <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground flex items-center">
+                <ShoppingCart className="h-3 w-3 mr-1" />
+                Vendas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold">{formatCurrency(stats?.totalSales || 0)}</div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Vendas</CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats?.totalSales || 0)}</div>
-              </CardContent>
-            </Card>
+          <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground flex items-center">
+                <DollarSign className="h-3 w-3 mr-1" />
+                Recebido
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg font-bold">{formatCurrency(stats?.totalPayments || 0)}</div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Recebido</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats?.totalPayments || 0)}</div>
-              </CardContent>
-            </Card>
+          <Card className="animate-scale-in" style={{ animationDelay: '0.3s' }}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs text-muted-foreground flex items-center">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Saldo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-lg font-bold ${
+                (stats?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+              }`}>
+                {formatCurrency(stats?.balance || 0)}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Saldo Geral</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${(stats?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatCurrency(stats?.balance || 0)}
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-lg font-semibold mb-4">Ações Rápidas</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="card-hover animate-slide-up">
+              <Link to="/clients" className="block p-4">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Clientes</h3>
+                    <p className="text-xs text-muted-foreground">Gerenciar</p>
+                  </div>
                 </div>
-              </CardContent>
+              </Link>
+            </Card>
+
+            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.1s' }}>
+              <Link to="/products" className="block p-4">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <Package className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Produtos</h3>
+                    <p className="text-xs text-muted-foreground">Catálogo</p>
+                  </div>
+                </div>
+              </Link>
+            </Card>
+
+            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <Link to="/affiliations" className="block p-4">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Afiliações</h3>
+                    <p className="text-xs text-muted-foreground">Organizar</p>
+                  </div>
+                </div>
+              </Link>
+            </Card>
+
+            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.3s' }}>
+              <Link to="/sales" className="block p-4">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <DollarSign className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Vendas</h3>
+                    <p className="text-xs text-muted-foreground">Registrar</p>
+                  </div>
+                </div>
+              </Link>
             </Card>
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-20">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link to="/clients" className="block p-6">
-              <div className="flex items-center space-x-3">
-                <Users className="h-8 w-8 text-primary" />
-                <div>
-                  <h3 className="font-semibold">Clientes</h3>
-                  <p className="text-sm text-muted-foreground">Gerenciar clientes</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link to="/affiliations" className="block p-6">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="h-8 w-8 text-primary" />
-                <div>
-                  <h3 className="font-semibold">Afiliações</h3>
-                  <p className="text-sm text-muted-foreground">Gerenciar afiliações</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link to="/products" className="block p-6">
-              <div className="flex items-center space-x-3">
-                <ShoppingCart className="h-8 w-8 text-primary" />
-                <div>
-                  <h3 className="font-semibold">Produtos</h3>
-                  <p className="text-sm text-muted-foreground">Gerenciar produtos</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link to="/sales" className="block p-6">
-              <div className="flex items-center space-x-3">
-                <DollarSign className="h-8 w-8 text-primary" />
-                <div>
-                  <h3 className="font-semibold">Vendas</h3>
-                  <p className="text-sm text-muted-foreground">Registrar vendas</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <Link to="/payments" className="block p-6">
-              <div className="flex items-center space-x-3">
-                <DollarSign className="h-8 w-8 text-primary" />
-                <div>
-                  <h3 className="font-semibold">Pagamentos</h3>
-                  <p className="text-sm text-muted-foreground">Registrar pagamentos</p>
-                </div>
-              </div>
-            </Link>
-          </Card>
-        </div>
-
-        {/* FAB for quick actions */}
-        <div className="fixed bottom-6 right-6">
-          <Button asChild size="lg" className="rounded-full h-14 w-14 shadow-lg">
-            <Link to="/sales/new">
-              <Plus className="h-6 w-6" />
-            </Link>
-          </Button>
-        </div>
-      </main>
-    </div>
+      {/* Floating Action Button */}
+      <div className="fab animate-scale-in" style={{ animationDelay: '0.5s' }}>
+        <Button asChild size="lg" className="w-full h-full bg-transparent hover:bg-transparent">
+          <Link to="/sales/new">
+            <Plus className="h-6 w-6" />
+          </Link>
+        </Button>
+      </div>
+    </MobileLayout>
   );
 };
 

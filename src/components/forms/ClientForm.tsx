@@ -1,0 +1,212 @@
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
+
+interface ClientFormData {
+  name: string;
+  phone: string;
+  cpf: string;
+  email: string;
+  address: string;
+  affiliation_id?: string;
+}
+
+interface ClientFormProps {
+  clientId?: string;
+  onSuccess?: () => void;
+}
+
+export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
+  const [selectedAffiliation, setSelectedAffiliation] = useState<string>("");
+  const queryClient = useQueryClient();
+  const { register, handleSubmit, reset, setValue, watch } = useForm<ClientFormData>();
+
+  // Fetch affiliations for select
+  const { data: affiliations = [] } = useQuery({
+    queryKey: ['affiliations'],
+    queryFn: async () => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+      
+      const { data, error } = await supabase
+        .from('affiliations')
+        .select('*')
+        .eq('user_id', userId);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch client data if editing
+  const { data: clientData } = useQuery({
+    queryKey: ['client', clientId],
+    queryFn: async () => {
+      if (!clientId) return null;
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', clientId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!clientId
+  });
+
+  // Set form values when editing
+  useState(() => {
+    if (clientData) {
+      setValue('name', clientData.name);
+      setValue('phone', clientData.phone || '');
+      setValue('cpf', clientData.cpf || '');
+      setValue('email', clientData.email || '');
+      setValue('address', clientData.address || '');
+      setSelectedAffiliation(clientData.affiliation_id || '');
+    }
+  });
+
+  const mutation = useMutation({
+    mutationFn: async (data: ClientFormData) => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      const clientData = {
+        ...data,
+        user_id: userId,
+        affiliation_id: selectedAffiliation || null
+      };
+
+      if (clientId) {
+        const { error } = await supabase
+          .from('clients')
+          .update(clientData)
+          .eq('id', clientId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('clients')
+          .insert(clientData);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      toast({
+        title: clientId ? "Cliente atualizado!" : "Cliente criado!",
+        description: "As informações foram salvas com sucesso."
+      });
+      if (!clientId) {
+        reset();
+        setSelectedAffiliation('');
+      }
+      onSuccess?.();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Erro",
+        description: error.message || "Não foi possível salvar o cliente.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const onSubmit = (data: ClientFormData) => {
+    mutation.mutate(data);
+  };
+
+  return (
+    <Card>
+      <CardContent className="mobile-form">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome *</Label>
+            <Input
+              id="name"
+              {...register("name", { required: true })}
+              className="mobile-input"
+              placeholder="Nome completo do cliente"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone</Label>
+            <Input
+              id="phone"
+              {...register("phone")}
+              className="mobile-input"
+              placeholder="(11) 99999-9999"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cpf">CPF</Label>
+            <Input
+              id="cpf"
+              {...register("cpf")}
+              className="mobile-input"
+              placeholder="000.000.000-00"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              {...register("email")}
+              className="mobile-input"
+              placeholder="cliente@email.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Endereço</Label>
+            <Input
+              id="address"
+              {...register("address")}
+              className="mobile-input"
+              placeholder="Endereço completo"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Afiliação</Label>
+            <Select value={selectedAffiliation} onValueChange={setSelectedAffiliation}>
+              <SelectTrigger className="mobile-input">
+                <SelectValue placeholder="Selecione uma afiliação (opcional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhuma</SelectItem>
+                {affiliations.map((affiliation) => (
+                  <SelectItem key={affiliation.id} value={affiliation.id}>
+                    {affiliation.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button 
+            type="submit" 
+            disabled={mutation.isPending}
+            className="mobile-button w-full mobile-tap"
+          >
+            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {clientId ? "Atualizar Cliente" : "Salvar Cliente"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+};

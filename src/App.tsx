@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Clients from "./pages/Clients";
+import Affiliations from "./pages/Affiliations";
+import Products from "./pages/Products";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
@@ -26,6 +29,30 @@ const App = () => (
               element={
                 <RequireAuth>
                   <Dashboard />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/clients"
+              element={
+                <RequireAuth>
+                  <Clients />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/affiliations"
+              element={
+                <RequireAuth>
+                  <Affiliations />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/products"
+              element={
+                <RequireAuth>
+                  <Products />
                 </RequireAuth>
               }
             />
