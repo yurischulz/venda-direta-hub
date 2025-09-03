@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Affiliations from "./pages/Affiliations";
 import Products from "./pages/Products";
+import Sales from "./pages/Sales";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
@@ -53,6 +54,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <Products />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/sales"
+              element={
+                <RequireAuth>
+                  <Sales />
                 </RequireAuth>
               }
             />
