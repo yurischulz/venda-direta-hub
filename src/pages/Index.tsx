@@ -1,13 +1,19 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <main className="min-h-screen flex items-center justify-center bg-background">
+      <section className="text-center space-y-6">
+        <h1 className="text-4xl font-bold">Bem-vindo ao SwiftSale</h1>
+        <p className="text-xl text-muted-foreground">Seu hub para controle de vendas direto.</p>
+        <div className="flex items-center justify-center">
+          <Button asChild>
+            <Link to="/auth">Entrar ou Cadastrar</Link>
+          </Button>
+        </div>
+      </section>
+    </main>
   );
 };
 
