@@ -25,7 +25,7 @@ interface ClientFormProps {
 }
 
 export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
-  const [selectedAffiliation, setSelectedAffiliation] = useState<string>("");
+  const [selectedAffiliation, setSelectedAffiliation] = useState<string>("none");
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, setValue, watch } = useForm<ClientFormData>();
 
@@ -71,7 +71,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('cpf', clientData.cpf || '');
       setValue('email', clientData.email || '');
       setValue('address', clientData.address || '');
-      setSelectedAffiliation(clientData.affiliation_id || '');
+      setSelectedAffiliation(clientData.affiliation_id || 'none');
     }
   });
 
@@ -83,7 +83,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       const clientData = {
         ...data,
         user_id: userId,
-        affiliation_id: selectedAffiliation || null
+        affiliation_id: selectedAffiliation === "none" ? null : selectedAffiliation || null
       };
 
       if (clientId) {
@@ -108,7 +108,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       });
       if (!clientId) {
         reset();
-        setSelectedAffiliation('');
+        setSelectedAffiliation('none');
       }
       onSuccess?.();
     },
@@ -187,7 +187,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
                 <SelectValue placeholder="Selecione uma afiliação (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhuma</SelectItem>
+                <SelectItem value="none">Nenhuma</SelectItem>
                 {affiliations.map((affiliation) => (
                   <SelectItem key={affiliation.id} value={affiliation.id}>
                     {affiliation.name}
