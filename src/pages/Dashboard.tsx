@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { Users, ShoppingCart, DollarSign, TrendingUp, Plus, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { FloatButtons } from "@/components/ui/float-buttons";
+import { SaleForm } from "@/components/forms/SaleForm";
+import { PaymentForm } from "@/components/forms/PaymentForm";
 
 const fetchDashboardStats = async () => {
   const userId = (await supabase.auth.getUser()).data.user?.id;
@@ -28,7 +33,10 @@ const fetchDashboardStats = async () => {
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { data: stats, isLoading } = useQuery({
+  const [isSaleDialogOpen, setIsSaleDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  
+  const { data: stats, isLoading, refetch } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
     enabled: !!user
@@ -36,6 +44,30 @@ const Dashboard = () => {
 
   const formatCurrency = (value: number) => 
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+  const handleSaleFormSuccess = () => {
+    setIsSaleDialogOpen(false);
+    refetch();
+  };
+
+  const handlePaymentFormSuccess = () => {
+    setIsPaymentDialogOpen(false);
+    refetch();
+  };
+
+  const floatButtons = [
+    {
+      icon: <ShoppingCart className="h-6 w-6" />,
+      label: "Nova Venda",
+      onClick: () => setIsSaleDialogOpen(true),
+    },
+    {
+      icon: <DollarSign className="h-6 w-6" />,
+      label: "Novo Recebimento",
+      onClick: () => setIsPaymentDialogOpen(true),
+      variant: "secondary" as const,
+    },
+  ];
 
   if (isLoading) {
     return (
@@ -197,6 +229,29 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Float Buttons */}
+      <FloatButtons buttons={floatButtons} />
+
+      {/* Sale Dialog */}
+      <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Nova Venda</DialogTitle>
+          </DialogHeader>
+          <SaleForm onSuccess={handleSaleFormSuccess} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Payment Dialog */}
+      <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Novo Recebimento</DialogTitle>
+          </DialogHeader>
+          <PaymentForm onSuccess={handlePaymentFormSuccess} />
+        </DialogContent>
+      </Dialog>
     </MobileLayout>
   );
 };
