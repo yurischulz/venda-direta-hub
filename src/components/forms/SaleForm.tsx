@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +32,7 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>("");
   const queryClient = useQueryClient();
-  const { control, handleSubmit, reset, watch } = useForm<SaleFormData>({
+  const { control, handleSubmit, reset, watch, setValue } = useForm<SaleFormData>({
     defaultValues: {
       items: [{ product_id: "", quantity: 1, unit_price: 0 }]
     }
@@ -96,9 +97,8 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
   const handleProductChange = (index: number, productId: string) => {
     const product = products.find(p => p.id === productId);
     if (product) {
-      const currentItems = [...watchedItems];
-      currentItems[index].unit_price = Number(product.price);
-      currentItems[index].product_id = productId;
+      setValue(`items.${index}.product_id`, productId);
+      setValue(`items.${index}.unit_price`, product.price);
     }
   };
 
@@ -295,14 +295,18 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
 
                     <div>
                       <Label>Preço unitário</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        defaultValue={field.unit_price}
+                      <MaskedInput
+                        mask="R$ 999999,99"
+                        defaultValue={field.unit_price > 0 ? `R$ ${field.unit_price.toFixed(2).replace('.', ',')}` : ""}
                         className="mobile-input"
+                        placeholder="R$ 0,00"
+                        inputMode="numeric"
                         {...control.register(`items.${index}.unit_price`, {
-                          valueAsNumber: true
+                          setValueAs: (value) => {
+                            if (!value) return 0;
+                            const numericValue = value.replace(/[^\d,]/g, '').replace(',', '.');
+                            return parseFloat(numericValue) || 0;
+                          }
                         })}
                       />
                     </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
@@ -141,21 +142,25 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="phone">Telefone</Label>
-            <Input
+            <MaskedInput
               id="phone"
               {...register("phone")}
+              mask="(99) 99999-9999"
               className="mobile-input"
               placeholder="(11) 99999-9999"
+              inputMode="numeric"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="cpf">CPF</Label>
-            <Input
+            <MaskedInput
               id="cpf"
               {...register("cpf")}
+              mask="999.999.999-99"
               className="mobile-input"
               placeholder="000.000.000-00"
+              inputMode="numeric"
             />
           </div>
 

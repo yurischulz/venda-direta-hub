@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { MaskedInput } from '@/components/ui/masked-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
@@ -115,12 +116,13 @@ export const AffiliationForm = ({
 
           <div className='space-y-2'>
             <Label htmlFor='phone'>Telefone</Label>
-            <Input
+            <MaskedInput
               id='phone'
               {...register('phone')}
+              mask="(99) 99999-9999"
               className='mobile-input'
               placeholder='(11) 99999-9999'
-              type='tel'
+              inputMode='numeric'
             />
           </div>
 

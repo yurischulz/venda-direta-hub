@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MaskedInput } from "@/components/ui/masked-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -47,7 +48,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
   useEffect(() => {
     if (productData) {
       setValue('name', productData.name);
-      setValue('price', productData.price.toString());
+      setValue('price', `R$ ${productData.price.toFixed(2).replace('.', ',')}`);
       setValue('description', productData.description || '');
       setValue('unit', productData.unit || '');
     }
@@ -58,9 +59,16 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
+      // Convert masked price to number
+      let price = 0;
+      if (data.price) {
+        const numericPrice = data.price.replace(/[^\d,]/g, '').replace(',', '.');
+        price = parseFloat(numericPrice) || 0;
+      }
+
       const productData = {
         name: data.name,
-        price: parseFloat(data.price) || 0,
+        price: price,
         description: data.description,
         unit: data.unit,
         user_id: userId
@@ -119,13 +127,13 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="price">Preço (R$) *</Label>
-            <Input
+            <MaskedInput
               id="price"
-              type="number"
-              step="0.01"
               {...register("price", { required: true })}
+              mask="R$ 999999,99"
               className="mobile-input"
-              placeholder="0,00"
+              placeholder="R$ 0,00"
+              inputMode="numeric"
             />
           </div>
 
