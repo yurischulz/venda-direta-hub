@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL. Mobile-first design with modern color palette.
 */
 
@@ -105,7 +105,7 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
   /* Mobile-first optimizations */
@@ -140,7 +140,6 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
     @apply transition-all duration-200 hover:shadow-mobile active:scale-[0.98];
   }
 
-
   /* Mobile form styles */
   .mobile-form {
     @apply space-y-6 p-4;
@@ -156,16 +155,18 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
 
   /* Tab styles */
   .mobile-tabs {
-    @apply flex w-full border-b border-border bg-card;
+    @apply flex w-full bg-card;
+    @apply bg-gray-100 p-2 space-x-4 rounded-full;
   }
 
   .mobile-tab {
     @apply flex-1 px-4 py-3 text-center font-medium transition-colors;
+    @apply bg-transparent rounded-full;
     @apply border-b-2 border-transparent;
     @apply hover:bg-muted hover:text-foreground;
   }
 
   .mobile-tab.active {
-    @apply border-b-primary text-primary;
+    @apply bg-primary text-primary-foreground border-b-0 shadow rounded-full;
   }
 }

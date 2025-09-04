@@ -289,10 +289,7 @@ const Sales = () => {
       <div className='p-4'>
         <MobileTabs value={activeTab} onValueChange={setActiveTab}>
           <MobileTabsList>
-            <MobileTabsTrigger value='dashboard'>
-              <BarChart3 className='h-4 w-4 mr-1' />
-              Dashboard
-            </MobileTabsTrigger>
+            <MobileTabsTrigger value='dashboard'>Dashboard</MobileTabsTrigger>
             <MobileTabsTrigger value='list'>
               Lista ({filteredSales.length})
             </MobileTabsTrigger>
