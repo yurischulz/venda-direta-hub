@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '../../lib/utils';
 
 type MoneyInputProps = {
-  value?: string;
+  value?: string | number;
   onValueChange?: (
     formattedValue: string,
     numericValue?: number,
@@ -15,11 +15,20 @@ type MoneyInputProps = {
   className?: string;
   id?: string;
 };
-const formatBRL = (num: string | undefined) => {
-  const n = num ? Number(num.replace(/\D/g, '')) / 100 : 0;
-  return n
-    ? n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    : 'R$ 0,00';
+const formatBRL = (input?: string | number) => {
+  let n = 0;
+  if (typeof input === 'number') {
+    n = input || 0;
+  } else if (typeof input === 'string') {
+    const digits = input.replace(/\D/g, '');
+    n = digits ? Number(digits) / 100 : 0;
+  }
+  return n.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 
 const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
@@ -42,13 +51,17 @@ const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
     React.useEffect(() => {
       setFormattedValue(formatBRL(value));
     }, [value]);
-    // Remove tudo que não for número
+    // Remove tudo que não for número e propaga valor para o form
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value.replace(/\D/g, '');
       const formatted = formatBRL(raw);
       setFormattedValue(formatted);
-    };
 
+      // Valor numérico em reais com ponto como separador decimal (ex.: "12.34")
+      const numeric = raw ? Number(raw) / 100 : 0;
+      const normalized = numeric.toFixed(2); // sempre com 2 casas
+      onValueChange?.(normalized, numeric, name);
+    };
     return (
       <Input
         id={id}
