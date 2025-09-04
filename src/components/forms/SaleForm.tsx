@@ -4,14 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MoneyInput } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ClientSearchInput } from '@/components/ui/client-search-input';
+import { ProductSearchInput } from '@/components/ui/product-search-input';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +31,16 @@ interface SaleFormProps {
   onSuccess?: () => void;
 }
 
+interface PendingClient {
+  name: string;
+  tempId: string;
+}
+
+interface PendingProduct {
+  name: string;
+  tempId: string;
+}
+
 export const SaleForm = ({
   saleId,
   preselectedClientId,
@@ -45,6 +50,8 @@ export const SaleForm = ({
     preselectedClientId || ''
   );
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
+  const [pendingClients, setPendingClients] = useState<PendingClient[]>([]);
+  const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
   const { invalidateSalesData } = useInvalidateRelated();
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<SaleFormData>({
@@ -113,14 +120,57 @@ export const SaleForm = ({
     }
   }, [selectedClient, clients]);
 
+  // Handle client creation
+  const handleCreateClient = (clientName: string) => {
+    const tempId = `temp_client_${Date.now()}`;
+    const newClient: PendingClient = { name: clientName, tempId };
+    setPendingClients(prev => [...prev, newClient]);
+    setSelectedClient(tempId);
+  };
+
+  // Handle product creation
+  const handleCreateProduct = (productName: string) => {
+    const tempId = `temp_product_${Date.now()}`;
+    const newProduct: PendingProduct = { name: productName, tempId };
+    setPendingProducts(prev => [...prev, newProduct]);
+    return tempId;
+  };
+
   // Auto-fill price when product changes
   const handleProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
       setValue(`items.${index}.product_id`, productId);
       setValue(`items.${index}.unit_price`, Number(product.price));
+    } else {
+      setValue(`items.${index}.product_id`, productId);
+      // For new products, keep current price or set to 0
+      if (!watchedItems[index]?.unit_price) {
+        setValue(`items.${index}.unit_price`, 0);
+      }
     }
   };
+
+  // Get all clients including pending ones
+  const allClients = [
+    ...clients,
+    ...pendingClients.map(pc => ({
+      id: pc.tempId,
+      name: pc.name,
+      affiliations: null
+    }))
+  ];
+
+  // Get all products including pending ones  
+  const allProducts = [
+    ...products,
+    ...pendingProducts.map(pp => ({
+      id: pp.tempId,
+      name: pp.name,
+      price: 0,
+      unit: null
+    }))
+  ];
 
   const mutation = useMutation({
     mutationFn: async (data: SaleFormData) => {
@@ -140,12 +190,54 @@ export const SaleForm = ({
         throw new Error('Adicione pelo menos um produto');
       }
 
+      let finalClientId = selectedClient;
+      let createdProductIds: Record<string, string> = {};
+
+      // Create pending client if needed
+      const pendingClient = pendingClients.find(pc => pc.tempId === selectedClient);
+      if (pendingClient) {
+        const { data: newClient, error: clientError } = await supabase
+          .from('clients')
+          .insert({
+            name: pendingClient.name,
+            user_id: user.id
+          })
+          .select()
+          .single();
+        
+        if (clientError) throw clientError;
+        finalClientId = newClient.id;
+      }
+
+      // Create pending products if needed
+      const itemsWithPendingProducts = data.items.filter(item => 
+        pendingProducts.some(pp => pp.tempId === item.product_id)
+      );
+      
+      for (const item of itemsWithPendingProducts) {
+        const pendingProduct = pendingProducts.find(pp => pp.tempId === item.product_id);
+        if (pendingProduct) {
+          const { data: newProduct, error: productError } = await supabase
+            .from('products')
+            .insert({
+              name: pendingProduct.name,
+              price: item.unit_price,
+              user_id: user.id
+            })
+            .select()
+            .single();
+          
+          if (productError) throw productError;
+          createdProductIds[item.product_id] = newProduct.id;
+        }
+      }
+
       // Create sale - user_id still needed for sales table
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
           user_id: user.id, // Still needed since no trigger sets this for sales
-          client_id: selectedClient,
+          client_id: finalClientId,
           affiliation_id: selectedAffiliation || null,
           total: 0, // Will be calculated by trigger
         })
@@ -170,7 +262,7 @@ export const SaleForm = ({
         .filter((item) => item.product_id)
         .map((item) => ({
           sale_id: sale.id,
-          product_id: item.product_id,
+          product_id: createdProductIds[item.product_id] || item.product_id,
           quantity: item.quantity,
           unit_price: item.unit_price,
           user_id: user.id,
@@ -216,6 +308,8 @@ export const SaleForm = ({
       });
       setSelectedClient('');
       setSelectedAffiliation('');
+      setPendingClients([]);
+      setPendingProducts([]);
       onSuccess?.();
     },
     onError: (error: any) => {
@@ -244,25 +338,14 @@ export const SaleForm = ({
           {/* Client Selection */}
           <div className='space-y-2'>
             <Label>Cliente *</Label>
-            <Select value={selectedClient} onValueChange={setSelectedClient}>
-              <SelectTrigger className='mobile-input'>
-                <SelectValue placeholder='Selecione um cliente' />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    <div>
-                      <div className='font-medium'>{client.name}</div>
-                      {client.affiliations && (
-                        <div className='text-xs text-muted-foreground'>
-                          {client.affiliations.name}
-                        </div>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <ClientSearchInput
+              clients={allClients}
+              value={selectedClient}
+              onValueChange={setSelectedClient}
+              onCreateNew={handleCreateClient}
+              placeholder="Digite o nome do cliente"
+              className="mobile-input"
+            />
           </div>
 
           {/* Products */}
@@ -322,29 +405,17 @@ export const SaleForm = ({
                 <div className='space-y-3'>
                   <div>
                     <Label>Produto</Label>
-                    <Select
+                    <ProductSearchInput
+                      products={allProducts}
                       value={watchedItems[index]?.product_id || ''}
-                      onValueChange={(value) =>
-                        handleProductChange(index, value)
-                      }
-                    >
-                      <SelectTrigger className='mobile-input'>
-                        <SelectValue placeholder='Selecione um produto' />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {products.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            <div>
-                              <div className='font-medium'>{product.name}</div>
-                              <div className='text-xs text-muted-foreground'>
-                                {formatCurrency(Number(product.price))}
-                                {product.unit && ` por ${product.unit}`}
-                              </div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onValueChange={(value) => handleProductChange(index, value)}
+                      onCreateNew={(productName) => {
+                        const tempId = handleCreateProduct(productName);
+                        handleProductChange(index, tempId);
+                      }}
+                      placeholder="Digite o nome do produto"
+                      className="mobile-input"
+                    />
                   </div>
 
                   <div className='grid grid-cols-2 gap-3'>
