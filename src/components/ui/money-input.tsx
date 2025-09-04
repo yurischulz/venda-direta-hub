@@ -1,12 +1,10 @@
-import { forwardRef, ChangeEvent } from 'react';
-import CurrencyInput, {
-  CurrencyInputOnChangeValues,
-} from 'react-currency-input-field';
+import { forwardRef } from 'react';
+import CurrencyInput from 'react-currency-input-field';
 import { cn } from '@/lib/utils';
 
 type MoneyInputProps = {
   value?: string | number;
-  onValueChange?: (value: string | undefined, name?: string) => void;
+  onValueChange?: (value: string, name?: string) => void;
   name?: string;
   placeholder?: string;
   className?: string;
@@ -26,23 +24,22 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
     },
     ref
   ) => {
-    const handleValueChange = (
-      value: string | undefined,
-      name?: string,
-      values?: CurrencyInputOnChangeValues
-    ) => {
-      if (!value || !values) {
-        onValueChange?.(value, name);
+    const handleValueChange = (val: string | undefined, name?: string) => {
+      if (!val) {
+        onValueChange?.('0.00', name);
         return;
       }
 
-      // Captura apenas dígitos
-      const digits = values?.value?.replace(/\D/g, '') || '';
+      // Remove tudo que não é dígito
+      const digits = val.replace(/\D/g, '');
+      if (!digits) {
+        onValueChange?.('0.00', name);
+        return;
+      }
 
-      // Converte os dígitos em número, considerando 2 casas decimais
-      const normalized = digits ? (Number(digits) / 100).toString() : '0';
+      // Divide por 100 para ter 2 casas decimais
+      const normalized = (Number(digits) / 100).toFixed(2);
 
-      // Callback com valor "real"
       onValueChange?.(normalized, name);
     };
 
@@ -61,7 +58,7 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
         allowDecimals={true}
         inputMode='numeric'
         className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
           className
         )}
         ref={ref}
