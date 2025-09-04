@@ -1,15 +1,15 @@
-import { useForm } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { MaskedInput } from "@/components/ui/masked-input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { MaskedInput } from '@/components/ui/masked-input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 interface ProductFormData {
   name: string;
@@ -25,7 +25,8 @@ interface ProductFormProps {
 
 export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, setValue } = useForm<ProductFormData>();
+  const { register, handleSubmit, reset, setValue } =
+    useForm<ProductFormData>();
 
   // Fetch product data if editing
   const { data: productData } = useQuery({
@@ -37,11 +38,11 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
         .select('*')
         .eq('id', productId)
         .single();
-      
+
       if (error) throw error;
       return data;
     },
-    enabled: !!productId
+    enabled: !!productId,
   });
 
   // Set form values when editing
@@ -62,7 +63,9 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
       // Convert masked price to number
       let price = 0;
       if (data.price) {
-        const numericPrice = data.price.replace(/[^\d,]/g, '').replace(',', '.');
+        const numericPrice = data.price
+          .replace(/[^\d,]/g, '')
+          .replace(',', '.');
         price = parseFloat(numericPrice) || 0;
       }
 
@@ -71,7 +74,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
         price: price,
         description: data.description,
         unit: data.unit,
-        user_id: userId
+        user_id: userId,
       };
 
       if (productId) {
@@ -81,17 +84,15 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
           .eq('id', productId);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('products')
-          .insert(productData);
+        const { error } = await supabase.from('products').insert(productData);
         if (error) throw error;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast({
-        title: productId ? "Produto atualizado!" : "Produto criado!",
-        description: "As informações foram salvas com sucesso."
+        title: productId ? 'Produto atualizado!' : 'Produto criado!',
+        description: 'As informações foram salvas com sucesso.',
       });
       if (!productId) {
         reset();
@@ -100,11 +101,11 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
     },
     onError: (error: any) => {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível salvar o produto.",
-        variant: "destructive"
+        title: 'Erro',
+        description: error.message || 'Não foi possível salvar o produto.',
+        variant: 'destructive',
       });
-    }
+    },
   });
 
   const onSubmit = (data: ProductFormData) => {
@@ -113,57 +114,59 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
 
   return (
     <Card>
-      <CardContent className="mobile-form">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome *</Label>
+      <CardContent className='mobile-form'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
+          <div className='space-y-2'>
+            <Label htmlFor='name'>Nome *</Label>
             <Input
-              id="name"
-              {...register("name", { required: true })}
-              className="mobile-input"
-              placeholder="Nome do produto"
+              id='name'
+              {...register('name', { required: true })}
+              className='mobile-input'
+              placeholder='Nome do produto'
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">Preço (R$) *</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='price'>Preço (R$) *</Label>
             <MaskedInput
-              id="price"
-              {...register("price", { required: true })}
-              mask="R$ 999999,99"
-              className="mobile-input"
-              placeholder="R$ 0,00"
-              inputMode="numeric"
+              id='price'
+              {...register('price', { required: true })}
+              mask='R$ 999.999.999.999,99'
+              className='mobile-input'
+              placeholder='R$ 0,00'
+              inputMode='numeric'
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="unit">Unidade</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='unit'>Unidade</Label>
             <Input
-              id="unit"
-              {...register("unit")}
-              className="mobile-input"
-              placeholder="Un, Kg, L, etc."
+              id='unit'
+              {...register('unit')}
+              className='mobile-input'
+              placeholder='Un, Kg, L, etc.'
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='description'>Descrição</Label>
             <Textarea
-              id="description"
-              {...register("description")}
-              className="min-h-20"
-              placeholder="Descrição do produto (opcional)"
+              id='description'
+              {...register('description')}
+              className='min-h-20'
+              placeholder='Descrição do produto (opcional)'
             />
           </div>
 
-          <Button 
-            type="submit" 
+          <Button
+            type='submit'
             disabled={mutation.isPending}
-            className="mobile-button w-full mobile-tap"
+            className='mobile-button w-full mobile-tap'
           >
-            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {productId ? "Atualizar Produto" : "Salvar Produto"}
+            {mutation.isPending && (
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+            )}
+            {productId ? 'Atualizar Produto' : 'Salvar Produto'}
           </Button>
         </form>
       </CardContent>
