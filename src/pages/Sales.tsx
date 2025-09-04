@@ -307,130 +307,125 @@ const Sales = () => {
           {/* Dashboard Tab */}
           <MobileTabsContent value='dashboard'>
             <div className='space-y-4 mt-4'>
-              {/* Statistics Cards */}
-              <div className='grid grid-cols-2 gap-3'>
+              {/* Empty State for Dashboard */}
+              {sales.length === 0 ? (
                 <Card>
-                  <CardContent className='p-3 text-center'>
-                    <div className='text-2xl font-bold text-primary'>
-                      {stats.totalSales}
-                    </div>
-                    <div className='text-xs text-muted-foreground'>
-                      Total de Vendas
-                    </div>
+                  <CardContent className='p-8 text-center'>
+                    <ShoppingCart className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
+                    <h3 className='font-semibold mb-2'>Nenhuma venda encontrada</h3>
+                    <p className='text-sm text-muted-foreground mb-4'>
+                      Registre suas primeiras vendas para começar
+                    </p>
+                    <Button
+                      onClick={() => setActiveTab('add')}
+                      className='mobile-tap'
+                    >
+                      <Plus className='h-4 w-4 mr-2' />
+                      Nova Venda
+                    </Button>
                   </CardContent>
                 </Card>
-                <Card>
-                  <CardContent className='p-3 text-center'>
-                    <div className='text-lg font-bold text-green-600'>
-                      {formatCurrency(stats.finalizedValue)
-                        .replace('R$', '')
-                        .trim()}
-                    </div>
-                    <div className='text-xs text-muted-foreground'>
-                      Valor Finalizado
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              ) : (
+                <>
+                  {/* Statistics Cards */}
+                  <div className='grid grid-cols-2 gap-3'>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-2xl font-bold text-primary'>
+                          {stats.totalSales}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          Total de Vendas
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-lg font-bold text-green-600'>
+                          {formatCurrency(stats.finalizedValue)
+                            .replace('R$', '')
+                            .trim()}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          Valor Finalizado
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-              <div className='grid grid-cols-3 gap-2'>
-                <Card>
-                  <CardContent className='p-3 text-center'>
-                    <div className='text-xl font-bold text-blue-600'>
-                      {stats.finalizedCount}
-                    </div>
-                    <div className='text-xs text-muted-foreground'>
-                      Finalizadas
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='p-3 text-center'>
-                    <div className='text-xl font-bold text-orange-600'>
-                      {stats.draftCount}
-                    </div>
-                    <div className='text-xs text-muted-foreground'>
-                      Rascunhos
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className='p-3 text-center'>
-                    <div className='text-sm font-bold text-purple-600'>
-                      {formatCurrency(stats.avgSaleValue)
-                        .replace('R$', '')
-                        .trim()}
-                    </div>
-                    <div className='text-xs text-muted-foreground'>Média</div>
-                  </CardContent>
-                </Card>
-              </div>
+                  <div className='grid grid-cols-3 gap-2'>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-xl font-bold text-blue-600'>
+                          {stats.finalizedCount}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          Finalizadas
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-xl font-bold text-orange-600'>
+                          {stats.draftCount}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          Rascunhos
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-sm font-bold text-purple-600'>
+                          {formatCurrency(stats.avgSaleValue)
+                            .replace('R$', '')
+                            .trim()}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>Média</div>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-              {/* Quick Actions */}
-              {/* <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Ações Rápidas</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <Button
-                    onClick={() => setActiveTab('add')}
-                    className="w-full justify-start mobile-tap"
-                    variant="outline"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Nova Venda
-                  </Button>
-                  <Button
-                    onClick={() => navigate('/customer-accounts')}
-                    className="w-full justify-start mobile-tap"
-                    variant="outline"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Ver Fichas dos Clientes
-                  </Button>
-                </CardContent>
-              </Card> */}
-
-              {/* Recent Sales Preview */}
-              {sales.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className='text-base flex items-center justify-between'>
-                      <span>Vendas Recentes</span>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => setActiveTab('list')}
-                        className='mobile-tap text-xs'
-                      >
-                        Ver todas <ExternalLink className='h-3 w-3 ml-1' />
-                      </Button>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className='space-y-2'>
-                    {sales.slice(0, 3).map((sale) => (
-                      <div
-                        key={sale.id}
-                        className='flex items-center justify-between p-2 bg-muted/50 rounded'
-                      >
-                        <div>
-                          <div className='font-medium text-sm'>
-                            {sale.clients.name}
+                  {/* Recent Sales Preview */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className='text-base flex items-center justify-between'>
+                        <span>Vendas Recentes</span>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => setActiveTab('list')}
+                          className='mobile-tap text-xs'
+                        >
+                          Ver todas <ExternalLink className='h-3 w-3 ml-1' />
+                        </Button>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className='space-y-2'>
+                      {sales.slice(0, 3).map((sale) => (
+                        <div
+                          key={sale.id}
+                          className='flex items-center justify-between p-2 bg-muted/50 rounded'
+                        >
+                          <div>
+                            <div className='font-medium text-sm'>
+                              {sale.clients.name}
+                            </div>
+                            <div className='text-xs text-muted-foreground'>
+                              {formatDate(sale.created_at)}
+                            </div>
                           </div>
-                          <div className='text-xs text-muted-foreground'>
-                            {formatDate(sale.created_at)}
+                          <div className='text-right'>
+                            <div className='font-bold text-sm'>
+                              {formatCurrency(Number(sale.total))}
+                            </div>
+                            {getStatusBadge(sale.status)}
                           </div>
                         </div>
-                        <div className='text-right'>
-                          <div className='font-bold text-sm'>
-                            {formatCurrency(Number(sale.total))}
-                          </div>
-                          {getStatusBadge(sale.status)}
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </>
               )}
             </div>
           </MobileTabsContent>
