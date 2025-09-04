@@ -183,15 +183,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Floating Action Button */}
-      <div className="fab animate-scale-in" style={{ animationDelay: '0.5s' }}>
-        <Button asChild size="lg" className="w-full h-full bg-transparent hover:bg-transparent">
-          <Link to="/sales/new">
-            <Plus className="h-6 w-6" />
-          </Link>
-        </Button>
-      </div>
     </MobileLayout>
   );
 };
