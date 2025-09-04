@@ -1,17 +1,28 @@
-import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
-import { Users, ShoppingCart, DollarSign, TrendingUp, Package } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { MobileLayout } from '@/components/layout/MobileLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Link } from 'react-router-dom';
+import {
+  Users,
+  ShoppingCart,
+  DollarSign,
+  TrendingUp,
+  Package,
+} from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
-import { SaleForm } from "@/components/forms/SaleForm";
-import { PaymentForm } from "@/components/forms/PaymentForm";
+import { SaleForm } from '@/components/forms/SaleForm';
+import { PaymentForm } from '@/components/forms/PaymentForm';
 
 const fetchDashboardStats = async () => {
   const userId = (await supabase.auth.getUser()).data.user?.id;
@@ -20,12 +31,17 @@ const fetchDashboardStats = async () => {
   const [clientsRes, salesRes, paymentsRes] = await Promise.all([
     supabase.from('clients').select('id').eq('user_id', userId),
     supabase.from('sales').select('total').eq('user_id', userId),
-    supabase.from('payments').select('amount').eq('user_id', userId)
+    supabase.from('payments').select('amount').eq('user_id', userId),
   ]);
 
   const totalClients = clientsRes.data?.length || 0;
-  const totalSales = salesRes.data?.reduce((sum, sale) => sum + Number(sale.total), 0) || 0;
-  const totalPayments = paymentsRes.data?.reduce((sum, payment) => sum + Number(payment.amount), 0) || 0;
+  const totalSales =
+    salesRes.data?.reduce((sum, sale) => sum + Number(sale.total), 0) || 0;
+  const totalPayments =
+    paymentsRes.data?.reduce(
+      (sum, payment) => sum + Number(payment.amount),
+      0
+    ) || 0;
   const balance = totalSales - totalPayments;
 
   return { totalClients, totalSales, totalPayments, balance };
@@ -35,15 +51,22 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [isSaleDialogOpen, setIsSaleDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  
-  const { data: stats, isLoading, refetch } = useQuery({
+
+  const {
+    data: stats,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
-    enabled: !!user
+    enabled: !!user,
   });
 
-  const formatCurrency = (value: number) => 
-    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  const formatCurrency = (value: number) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
 
   const handleSaleFormSuccess = () => {
     setIsSaleDialogOpen(false);
@@ -55,26 +78,25 @@ const Dashboard = () => {
     refetch();
   };
 
-
   if (isLoading) {
     return (
-      <MobileLayout title="SwiftSale">
-        <div className="p-4 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+      <MobileLayout title="D'Cris">
+        <div className='p-4 space-y-4'>
+          <div className='grid grid-cols-2 gap-4'>
             {[...Array(4)].map((_, i) => (
               <Card key={i}>
-                <CardHeader className="pb-2">
-                  <Skeleton className="h-4 w-16" />
+                <CardHeader className='pb-2'>
+                  <Skeleton className='h-4 w-16' />
                 </CardHeader>
                 <CardContent>
-                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className='h-6 w-20' />
                 </CardContent>
               </Card>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className='grid grid-cols-2 gap-4'>
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
+              <Skeleton key={i} className='h-20 w-full' />
             ))}
           </div>
         </div>
@@ -83,57 +105,65 @@ const Dashboard = () => {
   }
 
   return (
-    <MobileLayout title="SwiftSale">
-      <div className="p-4 pb-20 space-y-6">
+    <MobileLayout title="D'Cris">
+      <div className='p-4 pb-20 space-y-6'>
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card className="animate-scale-in">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs text-muted-foreground flex items-center">
-                <Users className="h-3 w-3 mr-1" />
+        <div className='grid grid-cols-2 gap-4'>
+          <Card className='animate-scale-in'>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-xs text-muted-foreground flex items-center'>
+                <Users className='h-3 w-3 mr-1' />
                 Clientes
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">{stats?.totalClients || 0}</div>
+              <div className='text-xl font-bold'>
+                {stats?.totalClients || 0}
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs text-muted-foreground flex items-center">
-                <ShoppingCart className="h-3 w-3 mr-1" />
+          <Card className='animate-scale-in' style={{ animationDelay: '0.1s' }}>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-xs text-muted-foreground flex items-center'>
+                <ShoppingCart className='h-3 w-3 mr-1' />
                 Vendas
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold">{formatCurrency(stats?.totalSales || 0)}</div>
+              <div className='text-lg font-bold'>
+                {formatCurrency(stats?.totalSales || 0)}
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs text-muted-foreground flex items-center">
-                <DollarSign className="h-3 w-3 mr-1" />
+          <Card className='animate-scale-in' style={{ animationDelay: '0.2s' }}>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-xs text-muted-foreground flex items-center'>
+                <DollarSign className='h-3 w-3 mr-1' />
                 Recebido
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold">{formatCurrency(stats?.totalPayments || 0)}</div>
+              <div className='text-lg font-bold'>
+                {formatCurrency(stats?.totalPayments || 0)}
+              </div>
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: '0.3s' }}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs text-muted-foreground flex items-center">
-                <TrendingUp className="h-3 w-3 mr-1" />
+          <Card className='animate-scale-in' style={{ animationDelay: '0.3s' }}>
+            <CardHeader className='pb-2'>
+              <CardTitle className='text-xs text-muted-foreground flex items-center'>
+                <TrendingUp className='h-3 w-3 mr-1' />
                 Saldo
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-lg font-bold ${
-                (stats?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'
-              }`}>
+              <div
+                className={`text-lg font-bold ${
+                  (stats?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
                 {formatCurrency(stats?.balance || 0)}
               </div>
             </CardContent>
@@ -142,73 +172,85 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-lg font-semibold mb-4">Ações Rápidas</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="card-hover animate-slide-up">
-              <Link to="/clients" className="block p-4">
-                <div className="text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Users className="h-6 w-6 text-primary" />
+          <h2 className='text-lg font-semibold mb-4'>Ações Rápidas</h2>
+          <div className='grid grid-cols-2 gap-4'>
+            <Card className='card-hover animate-slide-up'>
+              <Link to='/clients' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <Users className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className="font-medium">Clientes</h3>
-                    <p className="text-xs text-muted-foreground">Gerenciar</p>
+                    <h3 className='font-medium'>Clientes</h3>
+                    <p className='text-xs text-muted-foreground'>Gerenciar</p>
                   </div>
                 </div>
               </Link>
             </Card>
 
-            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <Link to="/products" className="block p-4">
-                <div className="text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Package className="h-6 w-6 text-primary" />
+            <Card
+              className='card-hover animate-slide-up'
+              style={{ animationDelay: '0.1s' }}
+            >
+              <Link to='/products' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <Package className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className="font-medium">Produtos</h3>
-                    <p className="text-xs text-muted-foreground">Catálogo</p>
+                    <h3 className='font-medium'>Produtos</h3>
+                    <p className='text-xs text-muted-foreground'>Catálogo</p>
                   </div>
                 </div>
               </Link>
             </Card>
 
-            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <Link to="/customer-accounts" className="block p-4">
-                <div className="text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <TrendingUp className="h-6 w-6 text-primary" />
+            <Card
+              className='card-hover animate-slide-up'
+              style={{ animationDelay: '0.2s' }}
+            >
+              <Link to='/customer-accounts' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <TrendingUp className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className="font-medium">Fichas</h3>
-                    <p className="text-xs text-muted-foreground">Crediário</p>
+                    <h3 className='font-medium'>Fichas</h3>
+                    <p className='text-xs text-muted-foreground'>Crediário</p>
                   </div>
                 </div>
               </Link>
             </Card>
 
-            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <Link to="/payments" className="block p-4">
-                <div className="text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <DollarSign className="h-6 w-6 text-primary" />
+            <Card
+              className='card-hover animate-slide-up'
+              style={{ animationDelay: '0.3s' }}
+            >
+              <Link to='/payments' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <DollarSign className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className="font-medium">Recebimentos</h3>
-                    <p className="text-xs text-muted-foreground">Controlar</p>
+                    <h3 className='font-medium'>Recebimentos</h3>
+                    <p className='text-xs text-muted-foreground'>Controlar</p>
                   </div>
                 </div>
               </Link>
             </Card>
 
-            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.4s' }}>
-              <Link to="/sales" className="block p-4">
-                <div className="text-center space-y-3">
-                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                    <ShoppingCart className="h-6 w-6 text-primary" />
+            <Card
+              className='card-hover animate-slide-up'
+              style={{ animationDelay: '0.4s' }}
+            >
+              <Link to='/sales' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <ShoppingCart className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className="font-medium">Vendas</h3>
-                    <p className="text-xs text-muted-foreground">Registrar</p>
+                    <h3 className='font-medium'>Vendas</h3>
+                    <p className='text-xs text-muted-foreground'>Registrar</p>
                   </div>
                 </div>
               </Link>
@@ -217,10 +259,9 @@ const Dashboard = () => {
         </div>
       </div>
 
-
       {/* Sale Dialog */}
       <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className='max-w-[95vw] max-h-[90vh] overflow-y-auto'>
           <DialogHeader>
             <DialogTitle>Nova Venda</DialogTitle>
           </DialogHeader>
@@ -230,7 +271,7 @@ const Dashboard = () => {
 
       {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className='max-w-[95vw] max-h-[90vh] overflow-y-auto'>
           <DialogHeader>
             <DialogTitle>Novo Recebimento</DialogTitle>
           </DialogHeader>
