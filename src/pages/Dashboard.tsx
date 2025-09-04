@@ -186,14 +186,14 @@ const Dashboard = () => {
             </Card>
 
             <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <Link to="/affiliations" className="block p-4">
+              <Link to="/customer-accounts" className="block p-4">
                 <div className="text-center space-y-3">
                   <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h3 className="font-medium">Afiliações</h3>
-                    <p className="text-xs text-muted-foreground">Organizar</p>
+                    <h3 className="font-medium">Fichas</h3>
+                    <p className="text-xs text-muted-foreground">Crediário</p>
                   </div>
                 </div>
               </Link>

@@ -21,16 +21,17 @@ const paymentSchema = z.object({
 type PaymentFormData = z.infer<typeof paymentSchema>;
 
 interface PaymentFormProps {
+  preselectedClientId?: string;
   onSuccess?: () => void;
 }
 
-export function PaymentForm({ onSuccess }: PaymentFormProps) {
+export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      client_id: "",
+      client_id: preselectedClientId || "",
       amount: 0,
       paid_at: new Date().toISOString().split("T")[0],
     },

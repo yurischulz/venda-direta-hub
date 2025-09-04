@@ -12,6 +12,8 @@ import Affiliations from "./pages/Affiliations";
 import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Payments from "./pages/Payments";
+import CustomerAccounts from "./pages/CustomerAccounts";
+import AccountDetail from "./pages/AccountDetail";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 
@@ -71,6 +73,22 @@ const App = () => (
               element={
                 <RequireAuth>
                   <Payments />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/customer-accounts"
+              element={
+                <RequireAuth>
+                  <CustomerAccounts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/customer-accounts/:clientId"
+              element={
+                <RequireAuth>
+                  <AccountDetail />
                 </RequireAuth>
               }
             />

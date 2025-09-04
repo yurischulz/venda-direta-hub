@@ -31,11 +31,12 @@ interface SaleFormData {
 
 interface SaleFormProps {
   saleId?: string;
+  preselectedClientId?: string;
   onSuccess?: () => void;
 }
 
-export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
-  const [selectedClient, setSelectedClient] = useState<string>('');
+export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormProps) => {
+  const [selectedClient, setSelectedClient] = useState<string>(preselectedClientId || '');
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
   const queryClient = useQueryClient();
   const { control, handleSubmit, reset, watch, setValue } =
