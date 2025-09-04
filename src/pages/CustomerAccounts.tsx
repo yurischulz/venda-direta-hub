@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +12,7 @@ import {
   Clock,
   FileText,
   ChevronRight,
+  Users,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -135,16 +135,6 @@ const CustomerAccounts = () => {
       title='Fichas dos Clientes'
       showBackButton
       backTo='/dashboard'
-      actions={
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={() => navigate('/clients')}
-          className='mobile-tap'
-        >
-          <Plus className='h-4 w-4' />
-        </Button>
-      }
     >
       <div className='p-4 space-y-4'>
         {/* Estatísticas Gerais */}
@@ -175,6 +165,27 @@ const CustomerAccounts = () => {
               <div className='text-xs text-muted-foreground'>A Receber</div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Ações Rápidas */}
+        <div className='grid grid-cols-2 gap-3'>
+          <Button
+            onClick={() => navigate('/clients')}
+            className='h-12 mobile-tap'
+            variant='outline'
+          >
+            <Plus className='h-4 w-4 mr-2' />
+            Novo Cliente
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/affiliations')}
+            className='h-12 mobile-tap'
+            variant='outline'
+          >
+            <Users className='h-4 w-4 mr-2' />
+            Nova Afiliação
+          </Button>
         </div>
 
         {/* Lista de Fichas */}
