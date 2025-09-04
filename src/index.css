@@ -140,13 +140,6 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
     @apply transition-all duration-200 hover:shadow-mobile active:scale-[0.98];
   }
 
-  /* FAB styles */
-  .fab {
-    @apply fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-mobile;
-    @apply bg-primary text-primary-foreground;
-    @apply flex items-center justify-center;
-    @apply transition-all duration-200 hover:scale-110 active:scale-95;
-  }
 
   /* Mobile form styles */
   .mobile-form {

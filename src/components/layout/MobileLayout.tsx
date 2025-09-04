@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, LogOut, Plus } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface MobileLayoutProps {
@@ -57,14 +57,6 @@ export const MobileLayout = ({
         </div>
       </main>
 
-      {/* Floating Action Button */}
-      <div className="fab animate-scale-in">
-        <Button asChild size="lg" className="w-full h-full bg-transparent hover:bg-transparent">
-          <Link to="/sales/new">
-            <Plus className="h-6 w-6" />
-          </Link>
-        </Button>
-      </div>
     </div>
   );
 };

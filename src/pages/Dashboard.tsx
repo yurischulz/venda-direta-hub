@@ -4,12 +4,12 @@ import { MobileLayout } from "@/components/layout/MobileLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
-import { Users, ShoppingCart, DollarSign, TrendingUp, Plus, Package } from "lucide-react";
+import { Users, ShoppingCart, DollarSign, TrendingUp, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { FloatButtons } from "@/components/ui/float-buttons";
+
 import { SaleForm } from "@/components/forms/SaleForm";
 import { PaymentForm } from "@/components/forms/PaymentForm";
 
@@ -55,19 +55,6 @@ const Dashboard = () => {
     refetch();
   };
 
-  const floatButtons = [
-    {
-      icon: <ShoppingCart className="h-6 w-6" />,
-      label: "Nova Venda",
-      onClick: () => setIsSaleDialogOpen(true),
-    },
-    {
-      icon: <DollarSign className="h-6 w-6" />,
-      label: "Novo Recebimento",
-      onClick: () => setIsPaymentDialogOpen(true),
-      variant: "secondary" as const,
-    },
-  ];
 
   if (isLoading) {
     return (
@@ -230,8 +217,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Float Buttons */}
-      <FloatButtons buttons={floatButtons} />
 
       {/* Sale Dialog */}
       <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>
