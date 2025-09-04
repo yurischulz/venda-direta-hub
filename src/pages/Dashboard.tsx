@@ -12,14 +12,13 @@ import { Link } from 'react-router-dom';
 import {
   Users,
   ShoppingCart,
-  DollarSign,
   TrendingUp,
   Package,
+  HandCoins,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { StatCardSkeleton } from '@/components/ui/data-skeleton';
-import { Button } from '@/components/ui/button';
 
 import { SaleForm } from '@/components/forms/SaleForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
@@ -110,9 +109,20 @@ const Dashboard = () => {
         <div className='grid grid-cols-2 gap-4'>
           <Card className='animate-scale-in'>
             <CardHeader className='pb-2'>
-              <CardTitle className='text-xs text-muted-foreground flex items-center'>
-                <Users className='h-3 w-3 mr-1' />
-                Clientes
+              <CardTitle
+                className={`
+                  text-xs text-muted-foreground flex items-center space-x-1
+                  text-gray-800 dark:text-gray-300
+                `}
+              >
+                <Users className='h-4 w-4 mr-1' />
+                <span
+                  className={`
+                      inline-flex items-center justify-center rounded-full
+                    `}
+                >
+                  Clientes
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -124,9 +134,20 @@ const Dashboard = () => {
 
           <Card className='animate-scale-in' style={{ animationDelay: '0.1s' }}>
             <CardHeader className='pb-2'>
-              <CardTitle className='text-xs text-muted-foreground flex items-center'>
-                <ShoppingCart className='h-3 w-3 mr-1' />
-                Vendas
+              <CardTitle
+                className={`
+                  text-xs text-muted-foreground flex items-center space-x-1
+                  text-gray-800 dark:text-gray-300
+                `}
+              >
+                <ShoppingCart className='h-4 w-4 mr-1' />
+                <span
+                  className={`
+                      inline-flex items-center justify-center rounded-full
+                    `}
+                >
+                  Vendas
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -138,9 +159,20 @@ const Dashboard = () => {
 
           <Card className='animate-scale-in' style={{ animationDelay: '0.2s' }}>
             <CardHeader className='pb-2'>
-              <CardTitle className='text-xs text-muted-foreground flex items-center'>
-                <DollarSign className='h-3 w-3 mr-1' />
-                Recebido
+              <CardTitle
+                className={`
+                  text-xs text-muted-foreground flex items-center space-x-1
+                  text-gray-800 dark:text-gray-300
+                `}
+              >
+                <HandCoins className='h-4 w-4 mr-1' />
+                <span
+                  className={`
+                      inline-flex items-center justify-center rounded-full
+                    `}
+                >
+                  Recebido
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -152,9 +184,20 @@ const Dashboard = () => {
 
           <Card className='animate-scale-in' style={{ animationDelay: '0.3s' }}>
             <CardHeader className='pb-2'>
-              <CardTitle className='text-xs text-muted-foreground flex items-center'>
-                <TrendingUp className='h-3 w-3 mr-1' />
-                Saldo
+              <CardTitle
+                className={`
+                  text-xs text-muted-foreground flex items-center space-x-1
+                  text-gray-800 dark:text-gray-300
+                `}
+              >
+                <TrendingUp className='h-4 w-4 mr-1' />
+                <span
+                  className={`
+                      inline-flex items-center justify-center rounded-full
+                    `}
+                >
+                  Saldo
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -231,7 +274,7 @@ const Dashboard = () => {
               <Link to='/payments' className='block p-4'>
                 <div className='text-center space-y-3'>
                   <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
-                    <DollarSign className='h-6 w-6 text-primary' />
+                    <HandCoins className='h-6 w-6 text-primary' />
                   </div>
                   <div>
                     <h3 className='font-medium'>Recebimentos</h3>
