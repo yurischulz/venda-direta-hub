@@ -34,6 +34,8 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!onChange) return;
+    
     const rawValue = e.target.value;
     const digits = rawValue.replace(/\D/g, '');
     
@@ -48,11 +50,11 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
       target: {
         ...e.target,
         value: formattedValue,
-        name: name || '',
+        name: name || e.target.name || '',
       },
     } as ChangeEvent<HTMLInputElement>;
     
-    onChange?.(syntheticEvent);
+    onChange(syntheticEvent);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

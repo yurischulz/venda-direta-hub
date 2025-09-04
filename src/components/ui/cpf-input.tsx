@@ -30,6 +30,8 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(({
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!onChange) return;
+    
     const rawValue = e.target.value;
     const digits = rawValue.replace(/\D/g, '');
     
@@ -44,11 +46,11 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(({
       target: {
         ...e.target,
         value: formattedValue,
-        name: name || '',
+        name: name || e.target.name || '',
       },
     } as ChangeEvent<HTMLInputElement>;
     
-    onChange?.(syntheticEvent);
+    onChange(syntheticEvent);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
