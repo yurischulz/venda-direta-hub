@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { MobileTabs, MobileTabsList, MobileTabsTrigger, MobileTabsContent } from "@/components/ui/mobile-tabs";
 import { AffiliationForm } from "@/components/forms/AffiliationForm";
@@ -23,6 +24,9 @@ const Affiliations = () => {
   const [activeTab, setActiveTab] = useState("list");
   const [editingAffiliation, setEditingAffiliation] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  
+  const backTo = searchParams.get('from') === 'customer-accounts' ? '/customer-accounts' : '/dashboard';
 
   const { data: affiliations = [], isLoading } = useQuery({
     queryKey: ['affiliations'],
@@ -103,7 +107,7 @@ const Affiliations = () => {
     <MobileLayout 
       title="Afiliações" 
       showBackButton 
-      backTo="/dashboard"
+      backTo={backTo}
       actions={
         <Button 
           variant="ghost" 

@@ -170,7 +170,7 @@ const CustomerAccounts = () => {
         {/* Ações Rápidas */}
         <div className='grid grid-cols-2 gap-3'>
           <Button
-            onClick={() => navigate('/clients')}
+            onClick={() => navigate('/clients?from=customer-accounts')}
             className='h-12 mobile-tap'
             variant='outline'
           >
@@ -179,7 +179,7 @@ const CustomerAccounts = () => {
           </Button>
           
           <Button
-            onClick={() => navigate('/affiliations')}
+            onClick={() => navigate('/affiliations?from=customer-accounts')}
             className='h-12 mobile-tap'
             variant='outline'
           >

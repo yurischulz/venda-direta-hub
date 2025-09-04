@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { MobileTabs, MobileTabsList, MobileTabsTrigger, MobileTabsContent } from "@/components/ui/mobile-tabs";
 import { ClientForm } from "@/components/forms/ClientForm";
@@ -27,6 +28,9 @@ const Clients = () => {
   const [activeTab, setActiveTab] = useState("list");
   const [editingClient, setEditingClient] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  
+  const backTo = searchParams.get('from') === 'customer-accounts' ? '/customer-accounts' : '/dashboard';
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ['clients'],
@@ -94,7 +98,7 @@ const Clients = () => {
     <MobileLayout 
       title="Clientes" 
       showBackButton 
-      backTo="/dashboard"
+      backTo={backTo}
       actions={
         <Button 
           variant="ghost" 
