@@ -52,17 +52,24 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
   const onSubmit = async (data: PaymentFormData) => {
     setIsLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
+      // Triggers now automatically set user_id, so we don't need to manually set it
       const { error } = await supabase.from("payments").insert({
-        user_id: user.id,
         client_id: data.client_id,
         amount: data.amount,
         paid_at: data.paid_at,
+        user_id: '', // Will be overridden by trigger
       });
 
-      if (error) throw error;
+      if (error) {
+        // Provide helpful error messages for common security policy violations
+        if (error.message.includes('new row violates row-level security policy')) {
+          throw new Error("Não é possível criar um recebimento para um cliente que não pertence a você.");
+        }
+        if (error.message.includes('check_payments_amount_positive')) {
+          throw new Error("O valor do recebimento deve ser maior que zero.");
+        }
+        throw error;
+      }
 
       toast({
         title: "Recebimento registrado",
@@ -71,10 +78,20 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
 
       form.reset();
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
+      let errorMessage = "Erro ao registrar recebimento.";
+      
+      if (error.message.includes('new row violates row-level security policy')) {
+        errorMessage = "Não é possível criar um recebimento para um cliente que não pertence a você.";
+      } else if (error.message.includes('check_payments_amount_positive')) {
+        errorMessage = "O valor do recebimento deve ser maior que zero.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Erro",
-        description: "Erro ao registrar recebimento.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

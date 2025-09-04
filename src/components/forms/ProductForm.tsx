@@ -57,15 +57,15 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: ProductFormData) => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       const productData = {
         name: data.name,
         price: data.price,
         description: data.description,
         unit: data.unit,
-        user_id: userId,
+        user_id: user.id, // Still needed since no trigger sets this
       };
 
       if (productId) {
@@ -73,10 +73,22 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
           .from('products')
           .update(productData)
           .eq('id', productId);
-        if (error) throw error;
+          
+        if (error) {
+          if (error.message.includes('check_products_price_non_negative')) {
+            throw new Error("O preço deve ser maior ou igual a zero.");
+          }
+          throw error;
+        }
       } else {
         const { error } = await supabase.from('products').insert(productData);
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes('check_products_price_non_negative')) {
+            throw new Error("O preço deve ser maior ou igual a zero.");
+          }
+          throw error;
+        }
       }
     },
     onSuccess: () => {

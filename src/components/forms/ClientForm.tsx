@@ -79,12 +79,12 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       const clientData = {
         ...data,
-        user_id: userId,
+        user_id: user.id, // Still needed since no trigger sets this
         affiliation_id: selectedAffiliation === "none" ? null : selectedAffiliation || null
       };
 
@@ -93,12 +93,24 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
           .from('clients')
           .update(clientData)
           .eq('id', clientId);
-        if (error) throw error;
+        
+        if (error) {
+          if (error.message.includes('new row violates row-level security policy')) {
+            throw new Error("Não é possível atualizar dados de cliente que não pertence a você.");
+          }
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from('clients')
           .insert(clientData);
-        if (error) throw error;
+          
+        if (error) {
+          if (error.message.includes('new row violates row-level security policy')) {
+            throw new Error("Não é possível criar cliente com dados que não pertencem a você.");
+          }
+          throw error;
+        }
       }
     },
     onSuccess: () => {

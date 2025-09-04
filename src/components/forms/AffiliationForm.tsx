@@ -55,12 +55,12 @@ export const AffiliationForm = ({
 
   const mutation = useMutation({
     mutationFn: async (data: AffiliationFormData) => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       const affiliationData = {
         ...data,
-        user_id: userId,
+        user_id: user.id, // Still needed since no trigger sets this
       };
 
       if (affiliationId) {
@@ -68,12 +68,24 @@ export const AffiliationForm = ({
           .from('affiliations')
           .update(affiliationData)
           .eq('id', affiliationId);
-        if (error) throw error;
+          
+        if (error) {
+          if (error.message.includes('new row violates row-level security policy')) {
+            throw new Error("Não é possível atualizar dados de afiliação que não pertence a você.");
+          }
+          throw error;
+        }
       } else {
         const { error } = await supabase
           .from('affiliations')
           .insert(affiliationData);
-        if (error) throw error;
+          
+        if (error) {
+          if (error.message.includes('new row violates row-level security policy')) {
+            throw new Error("Erro de permissão ao criar afiliação.");
+          }
+          throw error;
+        }
       }
     },
     onSuccess: () => {

@@ -116,8 +116,8 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: SaleFormData) => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
 
       if (!selectedClient) {
         throw new Error('Selecione um cliente');
@@ -130,11 +130,11 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
         throw new Error('Adicione pelo menos um produto');
       }
 
-      // Create sale
+      // Create sale - user_id still needed for sales table
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
-          user_id: userId,
+          user_id: user.id, // Still needed since no trigger sets this for sales
           client_id: selectedClient,
           affiliation_id: selectedAffiliation || null,
           total: 0, // Will be calculated by trigger
@@ -142,24 +142,40 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
         .select()
         .single();
 
-      if (saleError) throw saleError;
+      if (saleError) {
+        if (saleError.message.includes('new row violates row-level security policy')) {
+          throw new Error("Não é possível criar uma venda para um cliente ou afiliação que não pertence a você.");
+        }
+        throw saleError;
+      }
 
-      // Create sale items
+      // Create sale items - triggers will set user_id and calculate totals
       const saleItems = data.items
         .filter((item) => item.product_id)
         .map((item) => ({
-          user_id: userId,
           sale_id: sale.id,
           product_id: item.product_id,
           quantity: item.quantity,
           unit_price: item.unit_price,
+          user_id: '', // Will be overridden by trigger
         }));
 
       const { error: itemsError } = await supabase
         .from('sale_items')
         .insert(saleItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        if (itemsError.message.includes('new row violates row-level security policy')) {
+          throw new Error("Não é possível usar produtos que não pertencem a você.");
+        }
+        if (itemsError.message.includes('check_sale_items_quantity_non_negative')) {
+          throw new Error("A quantidade deve ser maior ou igual a zero.");
+        }
+        if (itemsError.message.includes('check_sale_items_unit_price_non_negative')) {
+          throw new Error("O preço unitário deve ser maior ou igual a zero.");
+        }
+        throw itemsError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
