@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MaskedInput } from "@/components/ui/masked-input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -295,12 +295,9 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
 
                     <div>
                       <Label>Preço unitário</Label>
-                      <MaskedInput
-                        mask="R$ 999999,99"
-                        defaultValue={field.unit_price > 0 ? `R$ ${field.unit_price.toFixed(2).replace('.', ',')}` : ""}
+                      <MoneyInput
                         className="mobile-input"
                         placeholder="R$ 0,00"
-                        inputMode="numeric"
                         {...control.register(`items.${index}.unit_price`, {
                           setValueAs: (value) => {
                             if (!value) return 0;

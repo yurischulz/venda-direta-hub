@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { MaskedInput } from '@/components/ui/masked-input';
+import { MoneyInput } from '@/components/ui/money-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -128,13 +128,11 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
 
           <div className='space-y-2'>
             <Label htmlFor='price'>Preço (R$) *</Label>
-            <MaskedInput
+            <MoneyInput
               id='price'
               {...register('price', { required: true })}
-              mask='R$ 999.999.999.999,99'
               className='mobile-input'
               placeholder='R$ 0,00'
-              inputMode='numeric'
             />
           </div>
 
