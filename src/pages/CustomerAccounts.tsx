@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  User, 
-  Plus, 
-  TrendingUp, 
-  TrendingDown, 
-  Clock, 
+import {
+  User,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Clock,
   FileText,
-  ChevronRight 
+  ChevronRight,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +33,7 @@ interface CustomerAccount {
 
 const CustomerAccounts = () => {
   const navigate = useNavigate();
-  
+
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
     queryFn: async () => {
@@ -50,7 +50,7 @@ const CustomerAccounts = () => {
       if (accountsError) throw accountsError;
 
       // Buscar clientes relacionados
-      const clientIds = accountsData.map(acc => acc.client_id);
+      const clientIds = accountsData.map((acc) => acc.client_id);
       if (clientIds.length === 0) return [];
 
       const { data: clientsData, error: clientsError } = await supabase
@@ -61,11 +61,11 @@ const CustomerAccounts = () => {
       if (clientsError) throw clientsError;
 
       // Combinar os dados
-      const accounts = accountsData.map(account => {
-        const client = clientsData.find(c => c.id === account.client_id);
+      const accounts = accountsData.map((account) => {
+        const client = clientsData.find((c) => c.id === account.client_id);
         return {
           ...account,
-          clients: client || { name: 'Cliente não encontrado', phone: null }
+          clients: client || { name: 'Cliente não encontrado', phone: null },
         };
       });
 
@@ -103,14 +103,14 @@ const CustomerAccounts = () => {
   const getStatusBadge = (status: string) => {
     const variants = {
       active: 'default',
-      blocked: 'destructive', 
-      inactive: 'secondary'
+      blocked: 'destructive',
+      inactive: 'secondary',
     } as const;
-    
+
     const labels = {
       active: 'Ativo',
       blocked: 'Bloqueado',
-      inactive: 'Inativo'
+      inactive: 'Inativo',
     };
 
     return (
@@ -122,79 +122,86 @@ const CustomerAccounts = () => {
 
   // Estatísticas gerais
   const totalAccounts = accounts.length;
-  const activeAccounts = accounts.filter(acc => acc.status === 'active').length;
-  const totalPendingBalance = accounts.reduce((sum, acc) => 
-    acc.current_balance > 0 ? sum + acc.current_balance : sum, 0
+  const activeAccounts = accounts.filter(
+    (acc) => acc.last_transaction_at !== null
+  ).length;
+  const totalPendingBalance = accounts.reduce(
+    (sum, acc) => (acc.current_balance > 0 ? sum + acc.current_balance : sum),
+    0
   );
 
   return (
     <MobileLayout
-      title="Fichas dos Clientes"
+      title='Fichas dos Clientes'
       showBackButton
-      backTo="/dashboard"
+      backTo='/dashboard'
       actions={
         <Button
-          variant="ghost"
-          size="sm"
+          variant='ghost'
+          size='sm'
           onClick={() => navigate('/clients')}
-          className="mobile-tap"
+          className='mobile-tap'
         >
-          <Plus className="h-4 w-4" />
+          <Plus className='h-4 w-4' />
         </Button>
       }
     >
-      <div className="p-4 space-y-4">
+      <div className='p-4 space-y-4'>
         {/* Estatísticas Gerais */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className='grid grid-cols-3 gap-3'>
           <Card>
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold text-primary">{totalAccounts}</div>
-              <div className="text-xs text-muted-foreground">Total Fichas</div>
+            <CardContent className='p-3 text-center'>
+              <div className='text-2xl font-bold text-primary'>
+                {totalAccounts}
+              </div>
+              <div className='text-xs text-muted-foreground'>Total Fichas</div>
             </CardContent>
           </Card>
-          
+
           <Card>
-            <CardContent className="p-3 text-center">
-              <div className="text-2xl font-bold text-green-600">{activeAccounts}</div>
-              <div className="text-xs text-muted-foreground">Ativas</div>
+            <CardContent className='p-3 text-center'>
+              <div className='text-2xl font-bold text-green-600'>
+                {activeAccounts}
+              </div>
+              <div className='text-xs text-muted-foreground'>Ativas</div>
             </CardContent>
           </Card>
-          
+
           <Card>
-            <CardContent className="p-3 text-center">
-              <div className="text-lg font-bold text-destructive">
+            <CardContent className='p-3 text-center'>
+              <div className='text-lg font-bold text-destructive'>
                 {formatCurrency(totalPendingBalance).replace('R$', '').trim()}
               </div>
-              <div className="text-xs text-muted-foreground">A Receber</div>
+              <div className='text-xs text-muted-foreground'>A Receber</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Lista de Fichas */}
-        <div className="space-y-3">
+        <div className='space-y-3'>
           {isLoading ? (
             [...Array(5)].map((_, i) => (
               <Card key={i}>
-                <CardContent className="p-4">
-                  <Skeleton className="h-6 w-2/3 mb-2" />
-                  <Skeleton className="h-4 w-1/2 mb-1" />
-                  <Skeleton className="h-4 w-1/3" />
+                <CardContent className='p-4'>
+                  <Skeleton className='h-6 w-2/3 mb-2' />
+                  <Skeleton className='h-4 w-1/2 mb-1' />
+                  <Skeleton className='h-4 w-1/3' />
                 </CardContent>
               </Card>
             ))
           ) : accounts.length === 0 ? (
             <Card>
-              <CardContent className="p-8 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="font-semibold mb-2">Nenhuma ficha encontrada</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+              <CardContent className='p-8 text-center'>
+                <FileText className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
+                <h3 className='font-semibold mb-2'>Nenhuma ficha encontrada</h3>
+                <p className='text-sm text-muted-foreground mb-4'>
                   Registre seus primeiros clientes para começar
                 </p>
                 <Button
                   onClick={() => navigate('/clients')}
-                  className="mobile-tap"
+                  className='mobile-tap'
                 >
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Plus className='h-4 w-4 mr-2' />
                   Adicionar Cliente
                 </Button>
               </CardContent>
@@ -202,64 +209,80 @@ const CustomerAccounts = () => {
           ) : (
             accounts.map((account) => {
               const BalanceIcon = getBalanceIcon(account.current_balance);
-              
+
               return (
-                <Card 
-                  key={account.id} 
-                  className="card-hover cursor-pointer"
-                  onClick={() => navigate(`/customer-accounts/${account.client_id}`)}
+                <Card
+                  key={account.id}
+                  className='card-hover cursor-pointer'
+                  onClick={() =>
+                    navigate(`/customer-accounts/${account.client_id}`)
+                  }
                 >
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <User className="h-5 w-5 text-primary" />
+                  <CardHeader className='pb-3'>
+                    <CardTitle className='text-lg flex items-center justify-between'>
+                      <div className='flex items-center space-x-2'>
+                        <User className='h-5 w-5 text-primary' />
                         <span>{account.clients.name}</span>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className='flex items-center space-x-2'>
                         {getStatusBadge(account.status)}
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        <ChevronRight className='h-4 w-4 text-muted-foreground' />
                       </div>
                     </CardTitle>
                   </CardHeader>
-                  
-                  <CardContent className="space-y-3">
+
+                  <CardContent className='space-y-3'>
                     {/* Saldo Atual */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <BalanceIcon className={`h-4 w-4 ${getBalanceColor(account.current_balance)}`} />
-                        <span className="text-sm font-medium">Saldo:</span>
+                    <div className='flex items-center justify-between'>
+                      <div className='flex items-center space-x-2'>
+                        <BalanceIcon
+                          className={`h-4 w-4 ${getBalanceColor(
+                            account.current_balance
+                          )}`}
+                        />
+                        <span className='text-sm font-medium'>Saldo:</span>
                       </div>
-                      <span className={`font-bold ${getBalanceColor(account.current_balance)}`}>
+                      <span
+                        className={`font-bold ${getBalanceColor(
+                          account.current_balance
+                        )}`}
+                      >
                         {formatCurrency(Math.abs(account.current_balance))}
                         {account.current_balance < 0 && ' (crédito)'}
                       </span>
                     </div>
 
                     {/* Resumo de Totais */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className='grid grid-cols-2 gap-4 pt-2 border-t'>
                       <div>
-                        <div className="text-xs text-muted-foreground">Total Vendas</div>
-                        <div className="font-medium text-sm">
+                        <div className='text-xs text-muted-foreground'>
+                          Total Vendas
+                        </div>
+                        <div className='font-medium text-sm'>
                           {formatCurrency(account.total_sales)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-xs text-muted-foreground">Total Recebido</div>
-                        <div className="font-medium text-sm text-green-600">
+                        <div className='text-xs text-muted-foreground'>
+                          Total Recebido
+                        </div>
+                        <div className='font-medium text-sm text-green-600'>
                           {formatCurrency(account.total_payments)}
                         </div>
                       </div>
                     </div>
 
                     {/* Última Transação */}
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Última transação:</span>
+                    <div className='flex items-center justify-between text-xs'>
+                      <span className='text-muted-foreground'>
+                        Última transação:
+                      </span>
                       <span>{formatDate(account.last_transaction_at)}</span>
                     </div>
 
                     {/* Telefone (se disponível) */}
                     {account.clients.phone && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className='text-xs text-muted-foreground'>
                         📞 {account.clients.phone}
                       </div>
                     )}
