@@ -27,16 +27,6 @@ const formatBRL = (input?: string | number) => {
   });
 };
 
-const parseNumericValue = (input?: string | number): number => {
-  if (typeof input === 'number') {
-    return input || 0;
-  } else if (typeof input === 'string') {
-    const digits = input.replace(/\D/g, '');
-    return digits ? Number(digits) / 100 : 0;
-  }
-  return 0;
-};
-
 const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
   (
     {

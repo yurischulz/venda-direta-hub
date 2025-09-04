@@ -1,86 +1,123 @@
-import { ChangeEvent, forwardRef, KeyboardEvent } from "react";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { ChangeEvent, forwardRef, KeyboardEvent } from 'react';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 type PhoneInputProps = {
   value?: string;
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  onValueChange?: (value: string) => void;
   name?: string;
   placeholder?: string;
   className?: string;
   id?: string;
 };
 
-export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
-  value = "",
-  onChange,
-  name,
-  placeholder = "(00) 00000-0000",
-  className,
-  id,
-  ...props
-}, ref) => {
-  const formatPhone = (phone: string) => {
-    const digits = phone.replace(/\D/g, '');
-    
-    if (digits.length <= 2) return digits.length > 0 ? `(${digits}` : '';
-    if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    if (digits.length <= 10) {
-      // Telefone fixo: (11) 1234-5678
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-    }
-    // Celular: (11) 91234-5678
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
-  };
+/**
+ * `PhoneInput` is a React component for entering and formatting Brazilian phone numbers.
+ * It automatically applies a mask to the input, supporting both landline and mobile formats.
+ *
+ * @remarks
+ * - Limits input to 11 digits.
+ * - Only allows numeric input and essential control keys.
+ * - Calls `onValueChange` with the formatted phone value.
+ * - TODO: Melhorar o tratamento de máscara
+ *
+ * @param value - The current value of the input (formatted).
+ * @param onChange - Optional native change event handler.
+ * @param onValueChange - Optional handler called with the formatted phone value.
+ * @param name - Optional input name.
+ * @param placeholder - Optional input placeholder, defaults to '(00) 00000-0000'.
+ * @param className - Optional CSS class for styling.
+ * @param id - Optional input id.
+ *
+ * @example
+ * ```tsx
+ * <PhoneInput
+ *   value={phone}
+ *   onValueChange={setPhone}
+ *   placeholder="(00) 00000-0000"
+ * />
+ * ```
+ */
+export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
+  (
+    {
+      value = '',
+      onChange,
+      onValueChange,
+      name,
+      placeholder = '(00) 00000-0000',
+      className,
+      id,
+      ...props
+    },
+    ref
+  ) => {
+    const formatPhone = (phone: string) => {
+      const digits = phone.replace(/\D/g, '');
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!onChange) return;
-    
-    const rawValue = e.target.value;
-    const digits = rawValue.replace(/\D/g, '');
-    
-    // Limita a 11 dígitos
-    if (digits.length > 11) return;
-    
-    const formattedValue = formatPhone(digits);
-    
-    // Cria um evento simples para react-hook-form
-    const event = {
-      ...e,
-      target: {
-        ...e.target,
-        name: name || e.target.name,
-        value: formattedValue,
-      },
+      if (digits.length <= 2) return digits.length > 0 ? `(${digits}` : '';
+      if (digits.length <= 6)
+        return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+      if (digits.length <= 10) {
+        // Telefone fixo: (11) 1234-5678
+        return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(
+          6
+        )}`;
+      }
+      // Celular: (11) 91234-5678
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(
+        7,
+        11
+      )}`;
     };
-    
-    onChange(event);
-  };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    // Permite apenas números, backspace, delete, tab, escape, enter, home, end, arrow keys
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'Home', 'End', 'ArrowLeft', 'ArrowRight'];
-    const isNumber = e.key >= '0' && e.key <= '9';
-    
-    if (!isNumber && !allowedKeys.includes(e.key)) {
-      e.preventDefault();
-    }
-  };
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const rawValue = e.target.value;
+      const digits = rawValue.replace(/\D/g, '');
 
-  return (
-    <Input
-      ref={ref}
-      id={id}
-      name={name}
-      value={value}
-      onChange={handleChange}
-      onKeyDown={handleKeyDown}
-      placeholder={placeholder}
-      inputMode="tel"
-      className={cn(className)}
-      {...props}
-    />
-  );
-});
+      // Limita a 11 dígitos
+      if (digits.length > 11) return;
 
-PhoneInput.displayName = "PhoneInput";
+      const formattedValue = formatPhone(digits);
+      onValueChange?.(formattedValue);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+      // Permite apenas números, backspace, delete, tab, escape, enter, home, end, arrow keys
+      const allowedKeys = [
+        'Backspace',
+        'Delete',
+        'Tab',
+        'Escape',
+        'Enter',
+        'Home',
+        'End',
+        'ArrowLeft',
+        'ArrowRight',
+      ];
+      const isNumber = e.key >= '0' && e.key <= '9';
+
+      if (!isNumber && !allowedKeys.includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+
+    return (
+      <Input
+        ref={ref}
+        id={id}
+        name={name}
+        value={value}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        inputMode='tel'
+        className={cn(className)}
+        {...props}
+      />
+    );
+  }
+);
+
+PhoneInput.displayName = 'PhoneInput';
