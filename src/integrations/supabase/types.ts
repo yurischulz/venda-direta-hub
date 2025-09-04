@@ -320,7 +320,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      recalculate_customer_account: {
+        Args: { account_client_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_status: "active" | "blocked" | "inactive"
