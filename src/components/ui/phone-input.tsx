@@ -1,5 +1,5 @@
-import { ChangeEvent, forwardRef } from "react";
-import InputMask from "react-input-mask";
+import { ChangeEvent, forwardRef, KeyboardEvent } from "react";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type PhoneInputProps = {
@@ -20,33 +20,64 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
   id,
   ...props
 }, ref) => {
-  const digits = (value || "").replace(/\D/g, "");
-  const isMobile = digits.length > 10; // 11 dígitos => celular
-  const mask = isMobile ? "(99) 99999-9999" : "(99) 9999-9999";
+  const formatPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    
+    if (digits.length <= 2) return digits.length > 0 ? `(${digits}` : '';
+    if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 10) {
+      // Telefone fixo: (11) 1234-5678
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+    // Celular: (11) 91234-5678
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const digits = rawValue.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    if (digits.length > 11) return;
+    
+    const formattedValue = formatPhone(digits);
+    
+    // Cria um novo evento com o valor formatado
+    const syntheticEvent = {
+      ...e,
+      target: {
+        ...e.target,
+        value: formattedValue,
+        name: name || '',
+      },
+    } as ChangeEvent<HTMLInputElement>;
+    
+    onChange?.(syntheticEvent);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // Permite apenas números, backspace, delete, tab, escape, enter, home, end, arrow keys
+    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'Home', 'End', 'ArrowLeft', 'ArrowRight'];
+    const isNumber = e.key >= '0' && e.key <= '9';
+    
+    if (!isNumber && !allowedKeys.includes(e.key)) {
+      e.preventDefault();
+    }
+  };
 
   return (
-    <InputMask
-      mask={mask}
-      maskChar=""
-      value={value}
-      onChange={onChange}
+    <Input
+      ref={ref}
+      id={id}
       name={name}
+      value={formatPhone(value)}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown}
       placeholder={placeholder}
       inputMode="tel"
+      className={cn(className)}
       {...props}
-    >
-      {(inputProps: any) => (
-        <input
-          {...inputProps}
-          ref={ref}
-          id={id}
-          className={cn(
-            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-            className
-          )}
-        />
-      )}
-    </InputMask>
+    />
   );
 });
 
