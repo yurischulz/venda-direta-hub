@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 
 const paymentSchema = z.object({
   client_id: z.string().min(1, "Cliente é obrigatório"),
@@ -26,6 +27,7 @@ interface PaymentFormProps {
 }
 
 export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps) {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<PaymentFormData>({
@@ -53,12 +55,15 @@ export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps
   const onSubmit = async (data: PaymentFormData) => {
     setIsLoading(true);
     try {
-      // Triggers now automatically set user_id, so we don't need to manually set it
+      if (!user?.id) {
+        throw new Error("Usuário não autenticado");
+      }
+
       const { error } = await supabase.from("payments").insert({
         client_id: data.client_id,
         amount: data.amount,
         paid_at: data.paid_at,
-        user_id: '', // Will be overridden by trigger
+        user_id: user.id,
       });
 
       if (error) {
