@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,7 +74,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
   });
 
   // Set form values when editing
-  useState(() => {
+  useEffect(() => {
     if (clientData) {
       setValue('name', clientData.name);
       setValue('phone', clientData.phone || '');
@@ -83,7 +83,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('address', clientData.address || '');
       setSelectedAffiliation(clientData.affiliation_id || 'none');
     }
-  });
+  }, [clientData, setValue]);
 
   const mutation = useMutation({
     mutationFn: async (data: ClientFormData) => {

@@ -1,4 +1,4 @@
-import { ChangeEvent, forwardRef, KeyboardEvent } from 'react';
+import { ChangeEvent, forwardRef, KeyboardEvent, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +30,7 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(
     },
     ref
   ) => {
+    const [formattedValue, setFormattedValue] = useState<string>(String(value || ''));
     const formatCpf = (cpf: string) => {
       const digits = cpf.replace(/\D/g, '').slice(0, 11);
       let formatted = digits;
@@ -47,13 +48,18 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(
         )}-${digits.slice(9)}`;
 
       return formatted;
-    };
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+     };
+ 
+     useEffect(() => {
+       setFormattedValue(formatCpf(String(value || '')));
+     }, [value]);
+ 
+     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       const rawValue = e.target.value;
       const digits = rawValue.replace(/\D/g, '').slice(0, 11);
-      const formattedValue = formatCpf(digits);
-      onValueChange?.(formattedValue);
+      const next = formatCpf(digits);
+      setFormattedValue(next);
+      onValueChange?.(next);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -79,7 +85,7 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(
         ref={ref}
         id={id}
         name={name}
-        value={value}
+        value={formattedValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}

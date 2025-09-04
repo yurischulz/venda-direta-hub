@@ -158,7 +158,7 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
           product_id: item.product_id,
           quantity: item.quantity,
           unit_price: item.unit_price,
-          user_id: '', // Will be overridden by trigger
+          user_id: user.id,
         }));
 
       const { error: itemsError } = await supabase

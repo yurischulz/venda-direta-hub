@@ -1,4 +1,4 @@
-import { ChangeEvent, forwardRef, KeyboardEvent } from 'react';
+import { ChangeEvent, forwardRef, KeyboardEvent, useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
@@ -53,6 +53,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     },
     ref
   ) => {
+    const [formattedValue, setFormattedValue] = useState<string>(String(value || ''));
     const formatPhone = (phone: string) => {
       const digits = phone.replace(/\D/g, '');
 
@@ -78,9 +79,10 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
 
       // Limita a 11 dígitos
       if (digits.length > 11) return;
-
-      const formattedValue = formatPhone(digits);
-      onValueChange?.(formattedValue);
+ 
+       const next = formatPhone(digits);
+       setFormattedValue(next);
+       onValueChange?.(next);
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -108,7 +110,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
         ref={ref}
         id={id}
         name={name}
-        value={value}
+        value={formattedValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
