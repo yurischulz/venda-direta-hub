@@ -5,11 +5,7 @@ import { cn } from '../../lib/utils';
 
 type MoneyInputProps = {
   value?: string | number;
-  onValueChange?: (
-    formattedValue: string,
-    numericValue?: number,
-    name?: string
-  ) => void;
+  onValueChange?: (value: number) => void;
   name?: string;
   placeholder?: string;
   className?: string;
@@ -29,6 +25,16 @@ const formatBRL = (input?: string | number) => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+};
+
+const parseNumericValue = (input?: string | number): number => {
+  if (typeof input === 'number') {
+    return input || 0;
+  } else if (typeof input === 'string') {
+    const digits = input.replace(/\D/g, '');
+    return digits ? Number(digits) / 100 : 0;
+  }
+  return 0;
 };
 
 const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
@@ -57,10 +63,9 @@ const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
       const formatted = formatBRL(raw);
       setFormattedValue(formatted);
 
-      // Valor numérico em reais com ponto como separador decimal (ex.: "12.34")
-      const numeric = raw ? Number(raw) / 100 : 0;
-      const normalized = numeric.toFixed(2); // sempre com 2 casas
-      onValueChange?.(normalized, numeric, name);
+      // Valor numérico como float
+      const numericValue = raw ? Number(raw) / 100 : 0;
+      onValueChange?.(numericValue);
     };
     return (
       <Input

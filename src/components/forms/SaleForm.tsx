@@ -110,7 +110,7 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
       setValue(`items.${index}.product_id`, productId);
-      setValue(`items.${index}.unit_price`, product.price);
+      setValue(`items.${index}.unit_price`, Number(product.price));
     }
   };
 
@@ -324,14 +324,12 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
                         name={`items.${index}.unit_price`}
                         control={control}
                         render={({ field }) => (
-                          <MoneyInput
-                            className='mobile-input'
-                            placeholder='R$ 0,00'
-                            value={field.value}
-                            onValueChange={(value) =>
-                              field.onChange(parseFloat(value || '0') || 0)
-                            }
-                          />
+                        <MoneyInput
+                          className='mobile-input'
+                          placeholder='R$ 0,00'
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
                         )}
                       />
                     </div>

@@ -13,7 +13,7 @@ import { useEffect } from 'react';
 
 interface ProductFormData {
   name: string;
-  price: string;
+  price: number;
   description: string;
   unit: string;
 }
@@ -49,7 +49,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
   useEffect(() => {
     if (productData) {
       setValue('name', productData.name);
-      setValue('price', productData.price.toString());
+      setValue('price', Number(productData.price));
       setValue('description', productData.description || '');
       setValue('unit', productData.unit || '');
     }
@@ -60,12 +60,9 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
-      // Price comes as string from CurrencyInput
-      const price = parseFloat(data.price) || 0;
-
       const productData = {
         name: data.name,
-        price: price,
+        price: data.price,
         description: data.description,
         unit: data.unit,
         user_id: userId,
@@ -130,7 +127,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
                 <MoneyInput
                   id='price'
                   value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
+                  onValueChange={field.onChange}
                   className='mobile-input'
                   placeholder='R$ 0,00'
                 />

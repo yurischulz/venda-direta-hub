@@ -119,8 +119,8 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
               <FormControl>
                 <MoneyInput
                   value={field.value}
-                  onValueChange={(value) => field.onChange(value)}
-                  placeholder="0,00"
+                  onValueChange={field.onChange}
+                  placeholder="R$ 0,00"
                 />
               </FormControl>
               <FormMessage />
