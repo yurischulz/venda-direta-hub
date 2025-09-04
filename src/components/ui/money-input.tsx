@@ -1,10 +1,10 @@
-import { useMemo, ChangeEvent, forwardRef } from "react";
-import InputMask from "react-input-mask";
+import { forwardRef } from "react";
+import CurrencyInput from 'react-currency-input-field';
 import { cn } from "@/lib/utils";
 
 type MoneyInputProps = {
-  value?: string;
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  value?: string | number;
+  onValueChange?: (value: string | undefined, name?: string) => void;
   name?: string;
   placeholder?: string;
   className?: string;
@@ -13,38 +13,32 @@ type MoneyInputProps = {
 
 export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(({
   value,
-  onChange,
+  onValueChange,
   name,
   placeholder = "R$ 0,00",
   className,
   id,
   ...props
 }, ref) => {
-  const moneyMask = useMemo(() => "R$ 999.999.999.999,99", []);
-
   return (
-    <InputMask
-      mask={moneyMask}
-      maskChar=""
-      value={value}
-      onChange={onChange}
+    <CurrencyInput
+      id={id}
       name={name}
       placeholder={placeholder}
+      value={value}
+      onValueChange={onValueChange}
+      prefix="R$ "
+      decimalSeparator=","
+      groupSeparator="."
+      decimalsLimit={2}
       inputMode="numeric"
-      {...props}
-    >
-      {(inputProps: any) => (
-        <input
-          {...inputProps}
-          ref={ref}
-          id={id}
-          className={cn(
-            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-            className
-          )}
-        />
+      className={cn(
+        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        className
       )}
-    </InputMask>
+      ref={ref}
+      {...props}
+    />
   );
 });
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MoneyInput } from "@/components/ui/money-input";
@@ -295,16 +295,17 @@ export const SaleForm = ({ saleId, onSuccess }: SaleFormProps) => {
 
                     <div>
                       <Label>Preço unitário</Label>
-                      <MoneyInput
-                        className="mobile-input"
-                        placeholder="R$ 0,00"
-                        {...control.register(`items.${index}.unit_price`, {
-                          setValueAs: (value) => {
-                            if (!value) return 0;
-                            const numericValue = value.replace(/[^\d,]/g, '').replace(',', '.');
-                            return parseFloat(numericValue) || 0;
-                          }
-                        })}
+                      <Controller
+                        name={`items.${index}.unit_price`}
+                        control={control}
+                        render={({ field }) => (
+                          <MoneyInput
+                            className="mobile-input"
+                            placeholder="R$ 0,00"
+                            value={field.value}
+                            onValueChange={(value) => field.onChange(parseFloat(value || "0") || 0)}
+                          />
+                        )}
                       />
                     </div>
                   </div>

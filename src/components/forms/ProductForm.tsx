@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MoneyInput } from '@/components/ui/money-input';
@@ -25,7 +25,7 @@ interface ProductFormProps {
 
 export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, setValue } =
+  const { register, handleSubmit, reset, setValue, control } =
     useForm<ProductFormData>();
 
   // Fetch product data if editing
@@ -49,7 +49,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
   useEffect(() => {
     if (productData) {
       setValue('name', productData.name);
-      setValue('price', `R$ ${productData.price.toFixed(2).replace('.', ',')}`);
+      setValue('price', productData.price.toString());
       setValue('description', productData.description || '');
       setValue('unit', productData.unit || '');
     }
@@ -60,14 +60,8 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
-      // Convert masked price to number
-      let price = 0;
-      if (data.price) {
-        const numericPrice = data.price
-          .replace(/[^\d,]/g, '')
-          .replace(',', '.');
-        price = parseFloat(numericPrice) || 0;
-      }
+      // Price comes as string from CurrencyInput
+      const price = parseFloat(data.price) || 0;
 
       const productData = {
         name: data.name,
@@ -128,11 +122,19 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
 
           <div className='space-y-2'>
             <Label htmlFor='price'>Preço (R$) *</Label>
-            <MoneyInput
-              id='price'
-              {...register('price', { required: true })}
-              className='mobile-input'
-              placeholder='R$ 0,00'
+            <Controller
+              name="price"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <MoneyInput
+                  id='price'
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(value)}
+                  className='mobile-input'
+                  placeholder='R$ 0,00'
+                />
+              )}
             />
           </div>
 
