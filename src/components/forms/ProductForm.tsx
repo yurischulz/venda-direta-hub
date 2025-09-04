@@ -123,7 +123,7 @@ export const ProductForm = ({ productId, onSuccess }: ProductFormProps) => {
           <div className='space-y-2'>
             <Label htmlFor='price'>Preço (R$) *</Label>
             <Controller
-              name="price"
+              name='price'
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
