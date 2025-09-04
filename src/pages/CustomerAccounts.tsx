@@ -3,7 +3,7 @@ import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { CustomerAccountSkeleton } from '@/components/ui/data-skeleton';
 import {
   User,
   Plus,
@@ -192,13 +192,7 @@ const CustomerAccounts = () => {
         <div className='space-y-3'>
           {isLoading ? (
             [...Array(5)].map((_, i) => (
-              <Card key={i}>
-                <CardContent className='p-4'>
-                  <Skeleton className='h-6 w-2/3 mb-2' />
-                  <Skeleton className='h-4 w-1/2 mb-1' />
-                  <Skeleton className='h-4 w-1/3' />
-                </CardContent>
-              </Card>
+              <CustomerAccountSkeleton key={i} />
             ))
           ) : accounts.length === 0 ? (
             <Card>

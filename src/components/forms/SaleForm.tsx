@@ -14,7 +14,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOptimizedQuery, useStaticQuery, useInvalidateRelated } from '@/hooks/use-optimized-query';
 import { Loader2, Plus, Trash2, Package } from 'lucide-react';
 
 interface SaleItem {
@@ -44,7 +45,7 @@ export const SaleForm = ({
     preselectedClientId || ''
   );
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
-  const queryClient = useQueryClient();
+  const { invalidateSalesData } = useInvalidateRelated();
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<SaleFormData>({
       defaultValues: {
@@ -63,10 +64,10 @@ export const SaleForm = ({
     0
   );
 
-  // Fetch clients
-  const { data: clients = [] } = useQuery({
-    queryKey: ['clients'],
-    queryFn: async () => {
+  // Fetch clients with optimized caching
+  const { data: clients = [] } = useOptimizedQuery(
+    ['clients'],
+    async () => {
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
@@ -82,13 +83,13 @@ export const SaleForm = ({
 
       if (error) throw error;
       return data;
-    },
-  });
+    }
+  );
 
-  // Fetch products
-  const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: async () => {
+  // Fetch products with static caching (they change less frequently)
+  const { data: products = [] } = useStaticQuery(
+    ['products'],
+    async () => {
       const userId = (await supabase.auth.getUser()).data.user?.id;
       if (!userId) throw new Error('User not authenticated');
 
@@ -99,8 +100,8 @@ export const SaleForm = ({
 
       if (error) throw error;
       return data;
-    },
-  });
+    }
+  );
 
   // Auto-set affiliation when client changes
   useEffect(() => {
@@ -205,12 +206,7 @@ export const SaleForm = ({
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({
-        queryKey: ['customer-accounts-summary'],
-      });
-      queryClient.invalidateQueries({ queryKey: ['customer-accounts'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+      invalidateSalesData(); // Uses optimized invalidation
       toast({
         title: 'Venda registrada!',
         description: 'A venda foi registrada com sucesso.',

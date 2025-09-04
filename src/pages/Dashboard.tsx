@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Skeleton } from '@/components/ui/skeleton';
+import { StatCardSkeleton } from '@/components/ui/data-skeleton';
 import { Button } from '@/components/ui/button';
 
 import { SaleForm } from '@/components/forms/SaleForm';
@@ -84,19 +84,18 @@ const Dashboard = () => {
         <div className='p-4 space-y-4'>
           <div className='grid grid-cols-2 gap-4'>
             {[...Array(4)].map((_, i) => (
-              <Card key={i}>
-                <CardHeader className='pb-2'>
-                  <Skeleton className='h-4 w-16' />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className='h-6 w-20' />
-                </CardContent>
-              </Card>
+              <StatCardSkeleton key={i} />
             ))}
           </div>
           <div className='grid grid-cols-2 gap-4'>
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className='h-20 w-full' />
+              <Card key={i}>
+                <div className='p-4 space-y-2'>
+                  <div className='w-12 h-12 bg-muted rounded-full mx-auto animate-pulse' />
+                  <div className='h-4 bg-muted rounded animate-pulse' />
+                  <div className='h-3 bg-muted rounded animate-pulse w-2/3 mx-auto' />
+                </div>
+              </Card>
             ))}
           </div>
         </div>
