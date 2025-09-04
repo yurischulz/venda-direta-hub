@@ -1,10 +1,10 @@
 import { forwardRef } from 'react';
-import CurrencyInput from 'react-currency-input-field';
+import CurrencyInput, { CurrencyInputOnChangeValues } from 'react-currency-input-field';
 import { cn } from '@/lib/utils';
 
 type MoneyInputProps = {
-  value?: string | number;
-  onValueChange?: (value: string, name?: string) => void;
+  value?: string;
+  onValueChange?: (formattedValue: string, numericValue?: number, name?: string) => void;
   name?: string;
   placeholder?: string;
   className?: string;
@@ -24,23 +24,18 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
     },
     ref
   ) => {
-    const handleValueChange = (val: string | undefined, name?: string) => {
-      if (!val) {
-        onValueChange?.('0.00', name);
+    const handleValueChange = (
+      value: string,
+      _name?: string,
+      values?: CurrencyInputOnChangeValues
+    ) => {
+      // Se não houver valor, retorna 'R$ 0,00' e 0
+      if (!value) {
+        onValueChange?.('R$ 0,00', 0, name);
         return;
       }
-
-      // Remove tudo que não é dígito
-      const digits = val.replace(/\D/g, '');
-      if (!digits) {
-        onValueChange?.('0.00', name);
-        return;
-      }
-
-      // Divide por 100 para ter 2 casas decimais
-      const normalized = (Number(digits) / 100).toFixed(2);
-
-      onValueChange?.(normalized, name);
+      // Retorna valor formatado e valor numérico
+      onValueChange?.(value, values?.value ? Number(values.value) : 0, name);
     };
 
     return (
@@ -68,4 +63,4 @@ export const MoneyInput = forwardRef<HTMLInputElement, MoneyInputProps>(
   }
 );
 
-MoneyInput.displayName = 'MoneyInput';
+MoneyInput.displayName =
