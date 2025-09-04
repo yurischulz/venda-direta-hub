@@ -35,8 +35,14 @@ interface SaleFormProps {
   onSuccess?: () => void;
 }
 
-export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormProps) => {
-  const [selectedClient, setSelectedClient] = useState<string>(preselectedClientId || '');
+export const SaleForm = ({
+  saleId,
+  preselectedClientId,
+  onSuccess,
+}: SaleFormProps) => {
+  const [selectedClient, setSelectedClient] = useState<string>(
+    preselectedClientId || ''
+  );
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
   const queryClient = useQueryClient();
   const { control, handleSubmit, reset, watch, setValue } =
@@ -117,7 +123,9 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
 
   const mutation = useMutation({
     mutationFn: async (data: SaleFormData) => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       if (!selectedClient) {
@@ -144,8 +152,14 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
         .single();
 
       if (saleError) {
-        if (saleError.message.includes('new row violates row-level security policy')) {
-          throw new Error("Não é possível criar uma venda para um cliente ou afiliação que não pertence a você.");
+        if (
+          saleError.message.includes(
+            'new row violates row-level security policy'
+          )
+        ) {
+          throw new Error(
+            'Não é possível criar uma venda para um cliente ou afiliação que não pertence a você.'
+          );
         }
         throw saleError;
       }
@@ -166,21 +180,35 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
         .insert(saleItems);
 
       if (itemsError) {
-        if (itemsError.message.includes('new row violates row-level security policy')) {
-          throw new Error("Não é possível usar produtos que não pertencem a você.");
+        if (
+          itemsError.message.includes(
+            'new row violates row-level security policy'
+          )
+        ) {
+          throw new Error(
+            'Não é possível usar produtos que não pertencem a você.'
+          );
         }
-        if (itemsError.message.includes('check_sale_items_quantity_non_negative')) {
-          throw new Error("A quantidade deve ser maior ou igual a zero.");
+        if (
+          itemsError.message.includes('check_sale_items_quantity_non_negative')
+        ) {
+          throw new Error('A quantidade deve ser maior ou igual a zero.');
         }
-        if (itemsError.message.includes('check_sale_items_unit_price_non_negative')) {
-          throw new Error("O preço unitário deve ser maior ou igual a zero.");
+        if (
+          itemsError.message.includes(
+            'check_sale_items_unit_price_non_negative'
+          )
+        ) {
+          throw new Error('O preço unitário deve ser maior ou igual a zero.');
         }
         throw itemsError;
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-accounts-summary'] });
+      queryClient.invalidateQueries({
+        queryKey: ['customer-accounts-summary'],
+      });
       queryClient.invalidateQueries({ queryKey: ['customer-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast({
@@ -343,12 +371,12 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
                         name={`items.${index}.unit_price`}
                         control={control}
                         render={({ field }) => (
-                        <MoneyInput
-                          className='mobile-input'
-                          placeholder='R$ 0,00'
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
+                          <MoneyInput
+                            className='mobile-input'
+                            placeholder='R$ 0,00'
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          />
                         )}
                       />
                     </div>

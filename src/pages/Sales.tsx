@@ -13,14 +13,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Plus, 
-  Trash2, 
-  ShoppingCart, 
-  User, 
-  Calendar, 
+import {
+  Plus,
+  Trash2,
+  ShoppingCart,
+  User,
+  Calendar,
   Search,
   Filter,
   TrendingUp,
@@ -30,7 +36,7 @@ import {
   Eye,
   Edit,
   BarChart3,
-  Users
+  Users,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -68,7 +74,9 @@ interface CustomerAccountSummary {
 const Sales = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'draft' | 'finalized' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'draft' | 'finalized' | 'cancelled'
+  >('all');
   const [clientFilter, setClientFilter] = useState('all');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -130,14 +138,17 @@ const Sales = () => {
 
   // Filter and search sales
   const filteredSales = useMemo(() => {
-    return sales.filter(sale => {
-      const matchesSearch = searchTerm === '' || 
+    return sales.filter((sale) => {
+      const matchesSearch =
+        searchTerm === '' ||
         sale.clients.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sale.total.toString().includes(searchTerm);
-      
-      const matchesStatus = statusFilter === 'all' || sale.status === statusFilter;
-      const matchesClient = clientFilter === 'all' || sale.client_id === clientFilter;
-      
+
+      const matchesStatus =
+        statusFilter === 'all' || sale.status === statusFilter;
+      const matchesClient =
+        clientFilter === 'all' || sale.client_id === clientFilter;
+
       return matchesSearch && matchesStatus && matchesClient;
     });
   }, [sales, searchTerm, statusFilter, clientFilter]);
@@ -146,17 +157,20 @@ const Sales = () => {
   const stats = useMemo(() => {
     const totalSales = sales.length;
     const totalValue = sales.reduce((sum, sale) => sum + Number(sale.total), 0);
-    const finalizedSales = sales.filter(s => s.status === 'finalized');
-    const draftSales = sales.filter(s => s.status === 'draft');
+    const finalizedSales = sales.filter((s) => s.status === 'finalized');
+    const draftSales = sales.filter((s) => s.status === 'draft');
     const avgSaleValue = totalSales > 0 ? totalValue / totalSales : 0;
-    
+
     return {
       totalSales,
       totalValue,
       finalizedCount: finalizedSales.length,
       draftCount: draftSales.length,
       avgSaleValue,
-      finalizedValue: finalizedSales.reduce((sum, sale) => sum + Number(sale.total), 0)
+      finalizedValue: finalizedSales.reduce(
+        (sum, sale) => sum + Number(sale.total),
+        0
+      ),
     };
   }, [sales]);
 
@@ -168,7 +182,9 @@ const Sales = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
-      queryClient.invalidateQueries({ queryKey: ['customer-accounts-summary'] });
+      queryClient.invalidateQueries({
+        queryKey: ['customer-accounts-summary'],
+      });
       queryClient.invalidateQueries({ queryKey: ['customer-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast({
@@ -206,14 +222,14 @@ const Sales = () => {
   const getStatusBadge = (status: string) => {
     const variants = {
       draft: 'secondary',
-      finalized: 'default', 
-      cancelled: 'destructive'
+      finalized: 'default',
+      cancelled: 'destructive',
     } as const;
-    
+
     const labels = {
       draft: 'Rascunho',
       finalized: 'Finalizada',
-      cancelled: 'Cancelada'
+      cancelled: 'Cancelada',
     };
 
     return (
@@ -241,7 +257,7 @@ const Sales = () => {
   // Get unique clients for filter
   const uniqueClients = useMemo(() => {
     const clients = sales.reduce((acc, sale) => {
-      if (!acc.find(c => c.id === sale.client_id)) {
+      if (!acc.find((c) => c.id === sale.client_id)) {
         acc.push({ id: sale.client_id, name: sale.clients.name });
       }
       return acc;
@@ -255,14 +271,14 @@ const Sales = () => {
       showBackButton
       backTo='/dashboard'
       actions={
-        <div className="flex items-center space-x-2">
+        <div className='flex items-center space-x-2'>
           <Button
-            variant="ghost"
-            size="sm"
+            variant='ghost'
+            size='sm'
             onClick={() => navigate('/customer-accounts')}
-            className="mobile-tap"
+            className='mobile-tap'
           >
-            <Users className="h-4 w-4" />
+            <Users className='h-4 w-4' />
           </Button>
           <Button
             variant='ghost'
@@ -279,7 +295,7 @@ const Sales = () => {
         <MobileTabs value={activeTab} onValueChange={setActiveTab}>
           <MobileTabsList>
             <MobileTabsTrigger value='dashboard'>
-              <BarChart3 className="h-4 w-4 mr-1" />
+              <BarChart3 className='h-4 w-4 mr-1' />
               Dashboard
             </MobileTabsTrigger>
             <MobileTabsTrigger value='list'>
@@ -295,16 +311,24 @@ const Sales = () => {
               <div className='grid grid-cols-2 gap-3'>
                 <Card>
                   <CardContent className='p-3 text-center'>
-                    <div className='text-2xl font-bold text-primary'>{stats.totalSales}</div>
-                    <div className='text-xs text-muted-foreground'>Total de Vendas</div>
+                    <div className='text-2xl font-bold text-primary'>
+                      {stats.totalSales}
+                    </div>
+                    <div className='text-xs text-muted-foreground'>
+                      Total de Vendas
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className='p-3 text-center'>
                     <div className='text-lg font-bold text-green-600'>
-                      {formatCurrency(stats.finalizedValue).replace('R$', '').trim()}
+                      {formatCurrency(stats.finalizedValue)
+                        .replace('R$', '')
+                        .trim()}
                     </div>
-                    <div className='text-xs text-muted-foreground'>Valor Finalizado</div>
+                    <div className='text-xs text-muted-foreground'>
+                      Valor Finalizado
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -312,20 +336,30 @@ const Sales = () => {
               <div className='grid grid-cols-3 gap-2'>
                 <Card>
                   <CardContent className='p-3 text-center'>
-                    <div className='text-xl font-bold text-blue-600'>{stats.finalizedCount}</div>
-                    <div className='text-xs text-muted-foreground'>Finalizadas</div>
+                    <div className='text-xl font-bold text-blue-600'>
+                      {stats.finalizedCount}
+                    </div>
+                    <div className='text-xs text-muted-foreground'>
+                      Finalizadas
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className='p-3 text-center'>
-                    <div className='text-xl font-bold text-orange-600'>{stats.draftCount}</div>
-                    <div className='text-xs text-muted-foreground'>Rascunhos</div>
+                    <div className='text-xl font-bold text-orange-600'>
+                      {stats.draftCount}
+                    </div>
+                    <div className='text-xs text-muted-foreground'>
+                      Rascunhos
+                    </div>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className='p-3 text-center'>
                     <div className='text-sm font-bold text-purple-600'>
-                      {formatCurrency(stats.avgSaleValue).replace('R$', '').trim()}
+                      {formatCurrency(stats.avgSaleValue)
+                        .replace('R$', '')
+                        .trim()}
                     </div>
                     <div className='text-xs text-muted-foreground'>Média</div>
                   </CardContent>
@@ -333,21 +367,21 @@ const Sales = () => {
               </div>
 
               {/* Quick Actions */}
-              <Card>
+              {/* <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Ações Rápidas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button 
-                    onClick={() => setActiveTab('add')} 
+                  <Button
+                    onClick={() => setActiveTab('add')}
                     className="w-full justify-start mobile-tap"
                     variant="outline"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Nova Venda
                   </Button>
-                  <Button 
-                    onClick={() => navigate('/customer-accounts')} 
+                  <Button
+                    onClick={() => navigate('/customer-accounts')}
                     className="w-full justify-start mobile-tap"
                     variant="outline"
                   >
@@ -355,35 +389,42 @@ const Sales = () => {
                     Ver Fichas dos Clientes
                   </Button>
                 </CardContent>
-              </Card>
+              </Card> */}
 
               {/* Recent Sales Preview */}
               {sales.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base flex items-center justify-between">
+                    <CardTitle className='text-base flex items-center justify-between'>
                       <span>Vendas Recentes</span>
                       <Button
-                        variant="ghost"
-                        size="sm"
+                        variant='ghost'
+                        size='sm'
                         onClick={() => setActiveTab('list')}
-                        className="mobile-tap text-xs"
+                        className='mobile-tap text-xs'
                       >
-                        Ver todas <ExternalLink className="h-3 w-3 ml-1" />
+                        Ver todas <ExternalLink className='h-3 w-3 ml-1' />
                       </Button>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className='space-y-2'>
                     {sales.slice(0, 3).map((sale) => (
-                      <div key={sale.id} className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                      <div
+                        key={sale.id}
+                        className='flex items-center justify-between p-2 bg-muted/50 rounded'
+                      >
                         <div>
-                          <div className="font-medium text-sm">{sale.clients.name}</div>
-                          <div className="text-xs text-muted-foreground">
+                          <div className='font-medium text-sm'>
+                            {sale.clients.name}
+                          </div>
+                          <div className='text-xs text-muted-foreground'>
                             {formatDate(sale.created_at)}
                           </div>
                         </div>
-                        <div className="text-right">
-                          <div className="font-bold text-sm">{formatCurrency(Number(sale.total))}</div>
+                        <div className='text-right'>
+                          <div className='font-bold text-sm'>
+                            {formatCurrency(Number(sale.total))}
+                          </div>
                           {getStatusBadge(sale.status)}
                         </div>
                       </div>
@@ -408,9 +449,12 @@ const Sales = () => {
                     className='pl-10'
                   />
                 </div>
-                
+
                 <div className='flex space-x-2'>
-                  <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                  <Select
+                    value={statusFilter}
+                    onValueChange={(value: any) => setStatusFilter(value)}
+                  >
                     <SelectTrigger className='flex-1'>
                       <SelectValue placeholder='Status' />
                     </SelectTrigger>
@@ -421,7 +465,7 @@ const Sales = () => {
                       <SelectItem value='cancelled'>Canceladas</SelectItem>
                     </SelectContent>
                   </Select>
-                  
+
                   <Select value={clientFilter} onValueChange={setClientFilter}>
                     <SelectTrigger className='flex-1'>
                       <SelectValue placeholder='Cliente' />
@@ -454,10 +498,14 @@ const Sales = () => {
                   <CardContent className='p-8 text-center'>
                     <ShoppingCart className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
                     <h3 className='font-semibold mb-2'>
-                      {sales.length === 0 ? 'Nenhuma venda registrada' : 'Nenhuma venda encontrada'}
+                      {sales.length === 0
+                        ? 'Nenhuma venda registrada'
+                        : 'Nenhuma venda encontrada'}
                     </h3>
                     <p className='text-sm text-muted-foreground mb-4'>
-                      {sales.length === 0 ? 'Comece registrando sua primeira venda' : 'Tente ajustar os filtros de busca'}
+                      {sales.length === 0
+                        ? 'Comece registrando sua primeira venda'
+                        : 'Tente ajustar os filtros de busca'}
                     </p>
                     {sales.length === 0 && (
                       <Button
@@ -473,7 +521,7 @@ const Sales = () => {
               ) : (
                 filteredSales.map((sale) => {
                   const customerAccount = accountsMap[sale.client_id];
-                  
+
                   return (
                     <Card key={sale.id} className='card-hover'>
                       <CardHeader className='pb-3'>
@@ -486,9 +534,11 @@ const Sales = () => {
                             <Button
                               variant='ghost'
                               size='sm'
-                              onClick={() => navigate(`/customer-accounts/${sale.client_id}`)}
+                              onClick={() =>
+                                navigate(`/customer-accounts/${sale.client_id}`)
+                              }
                               className='mobile-tap'
-                              title="Ver ficha do cliente"
+                              title='Ver ficha do cliente'
                             >
                               <ExternalLink className='h-4 w-4' />
                             </Button>
@@ -514,14 +564,23 @@ const Sales = () => {
                               </span>
                             )}
                           </div>
-                          
+
                           {/* Customer Account Balance */}
                           {customerAccount && (
                             <div className='text-right'>
-                              <div className='text-xs text-muted-foreground'>Saldo:</div>
-                              <div className={`text-xs font-bold ${getAccountStatusColor(customerAccount.current_balance)}`}>
-                                {formatCurrency(Math.abs(customerAccount.current_balance))}
-                                {customerAccount.current_balance < 0 && ' (crédito)'}
+                              <div className='text-xs text-muted-foreground'>
+                                Saldo:
+                              </div>
+                              <div
+                                className={`text-xs font-bold ${getAccountStatusColor(
+                                  customerAccount.current_balance
+                                )}`}
+                              >
+                                {formatCurrency(
+                                  Math.abs(customerAccount.current_balance)
+                                )}
+                                {customerAccount.current_balance < 0 &&
+                                  ' (crédito)'}
                               </div>
                             </div>
                           )}
@@ -553,13 +612,15 @@ const Sales = () => {
                                     {item.products?.name || 'Produto removido'}
                                   </span>
                                   <div className='text-muted-foreground'>
-                                    {item.quantity} {item.products?.unit || 'un'}{' '}
-                                    × {formatCurrency(Number(item.unit_price))}
+                                    {item.quantity}{' '}
+                                    {item.products?.unit || 'un'} ×{' '}
+                                    {formatCurrency(Number(item.unit_price))}
                                   </div>
                                 </div>
                                 <span className='font-medium'>
                                   {formatCurrency(
-                                    Number(item.quantity) * Number(item.unit_price)
+                                    Number(item.quantity) *
+                                      Number(item.unit_price)
                                   )}
                                 </span>
                               </div>
@@ -567,7 +628,8 @@ const Sales = () => {
                           ))}
                           {sale.sale_items.length > 2 && (
                             <div className='text-xs text-muted-foreground text-center py-1'>
-                              +{sale.sale_items.length - 2} item(ns) adicional(is)
+                              +{sale.sale_items.length - 2} item(ns)
+                              adicional(is)
                             </div>
                           )}
                         </div>
