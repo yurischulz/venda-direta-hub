@@ -88,13 +88,57 @@ export type Database = {
           },
         ]
       }
+      customer_accounts: {
+        Row: {
+          client_id: string
+          created_at: string
+          current_balance: number
+          id: string
+          last_transaction_at: string | null
+          notes: string | null
+          status: Database["public"]["Enums"]["account_status"]
+          total_payments: number
+          total_sales: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          current_balance?: number
+          id?: string
+          last_transaction_at?: string | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          total_payments?: number
+          total_sales?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          current_balance?: number
+          id?: string
+          last_transaction_at?: string | null
+          notes?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          total_payments?: number
+          total_sales?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
           client_id: string
           created_at: string
           id: string
+          notes: string | null
           paid_at: string
+          sale_id: string | null
           updated_at: string
           user_id: string
         }
@@ -103,7 +147,9 @@ export type Database = {
           client_id: string
           created_at?: string
           id?: string
+          notes?: string | null
           paid_at?: string
+          sale_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -112,7 +158,9 @@ export type Database = {
           client_id?: string
           created_at?: string
           id?: string
+          notes?: string | null
           paid_at?: string
+          sale_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -215,7 +263,11 @@ export type Database = {
           affiliation_id: string | null
           client_id: string
           created_at: string
+          due_date: string | null
           id: string
+          notes: string | null
+          payment_terms: string | null
+          status: Database["public"]["Enums"]["sale_status"]
           total: number
           updated_at: string
           user_id: string
@@ -224,7 +276,11 @@ export type Database = {
           affiliation_id?: string | null
           client_id: string
           created_at?: string
+          due_date?: string | null
           id?: string
+          notes?: string | null
+          payment_terms?: string | null
+          status?: Database["public"]["Enums"]["sale_status"]
           total?: number
           updated_at?: string
           user_id: string
@@ -233,7 +289,11 @@ export type Database = {
           affiliation_id?: string | null
           client_id?: string
           created_at?: string
+          due_date?: string | null
           id?: string
+          notes?: string | null
+          payment_terms?: string | null
+          status?: Database["public"]["Enums"]["sale_status"]
           total?: number
           updated_at?: string
           user_id?: string
@@ -263,7 +323,8 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      account_status: "active" | "blocked" | "inactive"
+      sale_status: "draft" | "finalized" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -390,6 +451,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_status: ["active", "blocked", "inactive"],
+      sale_status: ["draft", "finalized", "cancelled"],
+    },
   },
 } as const
