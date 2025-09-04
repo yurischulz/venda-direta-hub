@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useSearchParams } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -92,25 +93,15 @@ const Products = () => {
       currency: 'BRL',
     }).format(value);
 
+  const [searchParams] = useSearchParams();
+
+  const backTo =
+    searchParams.get('from') !== null
+      ? `/${searchParams.get('from')}`
+      : '/dashboard';
+
   return (
-    <MobileLayout
-      title='Produtos'
-      showBackButton
-      backTo='/dashboard'
-      actions={
-        <Button
-          variant='ghost'
-          size='sm'
-          onClick={() => {
-            setEditingProduct(null);
-            setActiveTab('add');
-          }}
-          className='mobile-tap'
-        >
-          <Plus className='h-4 w-4' />
-        </Button>
-      }
-    >
+    <MobileLayout title='Produtos' showBackButton backTo={backTo}>
       <div className='p-4'>
         <MobileTabs value={activeTab} onValueChange={setActiveTab}>
           <MobileTabsList>

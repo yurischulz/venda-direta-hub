@@ -28,15 +28,10 @@ import {
   User,
   Calendar,
   Search,
-  Filter,
-  TrendingUp,
-  DollarSign,
-  FileText,
   ExternalLink,
-  Eye,
-  Edit,
   BarChart3,
   Users,
+  Package,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -275,7 +270,7 @@ const Sales = () => {
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => navigate('/customer-accounts')}
+            onClick={() => navigate('/customer-accounts?from=sales')}
             className='mobile-tap'
           >
             <Users className='h-4 w-4' />
@@ -283,10 +278,10 @@ const Sales = () => {
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => setActiveTab('add')}
+            onClick={() => navigate('/products?from=sales')}
             className='mobile-tap'
           >
-            <Plus className='h-4 w-4' />
+            <Package className='h-4 w-4' />
           </Button>
         </div>
       }
@@ -312,7 +307,9 @@ const Sales = () => {
                 <Card>
                   <CardContent className='p-8 text-center'>
                     <ShoppingCart className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
-                    <h3 className='font-semibold mb-2'>Nenhuma venda encontrada</h3>
+                    <h3 className='font-semibold mb-2'>
+                      Nenhuma venda encontrada
+                    </h3>
                     <p className='text-sm text-muted-foreground mb-4'>
                       Registre suas primeiras vendas para começar
                     </p>
@@ -381,7 +378,9 @@ const Sales = () => {
                             .replace('R$', '')
                             .trim()}
                         </div>
-                        <div className='text-xs text-muted-foreground'>Média</div>
+                        <div className='text-xs text-muted-foreground'>
+                          Média
+                        </div>
                       </CardContent>
                     </Card>
                   </div>

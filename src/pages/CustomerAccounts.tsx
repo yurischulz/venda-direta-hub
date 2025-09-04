@@ -15,7 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface CustomerAccount {
   id: string;
@@ -33,6 +33,7 @@ interface CustomerAccount {
 
 const CustomerAccounts = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -130,12 +131,13 @@ const CustomerAccounts = () => {
     0
   );
 
+  const backTo =
+    searchParams.get('from') !== null
+      ? `/${searchParams.get('from')}`
+      : '/dashboard';
+
   return (
-    <MobileLayout
-      title='Fichas dos Clientes'
-      showBackButton
-      backTo='/dashboard'
-    >
+    <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
       <div className='p-4 space-y-4'>
         {/* Estatísticas Gerais */}
         <div className='grid grid-cols-3 gap-3'>
