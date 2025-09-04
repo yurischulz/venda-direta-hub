@@ -40,13 +40,17 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(({
     
     const formattedValue = formatCpf(digits);
     
-    // Para react-hook-form, apenas chama onChange com o valor formatado
-    onChange({
+    // Cria um evento simples para react-hook-form
+    const event = {
+      ...e,
       target: {
-        name: name || e.target.name || '',
+        ...e.target,
+        name: name || e.target.name,
         value: formattedValue,
       },
-    } as ChangeEvent<HTMLInputElement>);
+    };
+    
+    onChange(event);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -64,7 +68,7 @@ export const CpfInput = forwardRef<HTMLInputElement, CpfInputProps>(({
       ref={ref}
       id={id}
       name={name}
-      value={formatCpf(value)}
+      value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}

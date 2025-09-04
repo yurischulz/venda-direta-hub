@@ -44,13 +44,17 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
     
     const formattedValue = formatPhone(digits);
     
-    // Para react-hook-form, apenas chama onChange com o valor formatado
-    onChange({
+    // Cria um evento simples para react-hook-form
+    const event = {
+      ...e,
       target: {
-        name: name || e.target.name || '',
+        ...e.target,
+        name: name || e.target.name,
         value: formattedValue,
       },
-    } as ChangeEvent<HTMLInputElement>);
+    };
+    
+    onChange(event);
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -68,7 +72,7 @@ export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(({
       ref={ref}
       id={id}
       name={name}
-      value={formatPhone(value)}
+      value={value}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       placeholder={placeholder}
