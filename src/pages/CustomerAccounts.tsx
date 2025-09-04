@@ -177,7 +177,7 @@ const CustomerAccounts = () => {
             <Plus className='h-4 w-4 mr-2' />
             Novo Cliente
           </Button>
-          
+
           <Button
             onClick={() => navigate('/affiliations?from=customer-accounts')}
             className='h-12 mobile-tap'
@@ -191,9 +191,7 @@ const CustomerAccounts = () => {
         {/* Lista de Fichas */}
         <div className='space-y-3'>
           {isLoading ? (
-            [...Array(5)].map((_, i) => (
-              <CustomerAccountSkeleton key={i} />
-            ))
+            [...Array(5)].map((_, i) => <CustomerAccountSkeleton key={i} />)
           ) : accounts.length === 0 ? (
             <Card>
               <CardContent className='p-8 text-center'>
@@ -203,7 +201,7 @@ const CustomerAccounts = () => {
                   Registre seus primeiros clientes para começar
                 </p>
                 <Button
-                  onClick={() => navigate('/clients')}
+                  onClick={() => navigate('/clients?from=customer-accounts')}
                   className='mobile-tap'
                 >
                   <Plus className='h-4 w-4 mr-2' />
