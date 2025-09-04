@@ -29,7 +29,7 @@ export default function Payments() {
         // Buscar total de vendas
         const { data: sales, error: salesError } = await supabase
           .from("sales")
-          .select("amount")
+          .select("total")
           .eq("client_id", client.id);
         
         if (salesError) throw salesError;
@@ -42,7 +42,7 @@ export default function Payments() {
         
         if (paymentsError) throw paymentsError;
 
-        const totalSales = sales?.reduce((sum, sale) => sum + sale.amount, 0) || 0;
+        const totalSales = sales?.reduce((sum, sale) => sum + sale.total, 0) || 0;
         const totalPayments = payments?.reduce((sum, payment) => sum + payment.amount, 0) || 0;
         const balance = totalSales - totalPayments;
 
@@ -69,11 +69,10 @@ export default function Payments() {
         .select(`
           id,
           amount,
-          payment_date,
-          notes,
+          paid_at,
           clients (name)
         `)
-        .order("payment_date", { ascending: false });
+        .order("paid_at", { ascending: false });
       
       if (error) throw error;
       return data;
@@ -200,19 +199,17 @@ export default function Payments() {
                         <TableHead>Data</TableHead>
                         <TableHead>Cliente</TableHead>
                         <TableHead>Valor</TableHead>
-                        <TableHead>Observações</TableHead>
-                        <TableHead width="50">Ações</TableHead>
+                        <TableHead className="w-[50px]">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {payments.map((payment) => (
                         <TableRow key={payment.id}>
                           <TableCell>
-                            {formatDate(payment.payment_date)}
+                            {formatDate(payment.paid_at)}
                           </TableCell>
                           <TableCell>{payment.clients?.name}</TableCell>
                           <TableCell>{formatCurrency(payment.amount)}</TableCell>
-                          <TableCell>{payment.notes || "-"}</TableCell>
                           <TableCell>
                             <Button
                               variant="ghost"

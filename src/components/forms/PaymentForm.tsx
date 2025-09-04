@@ -15,8 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 const paymentSchema = z.object({
   client_id: z.string().min(1, "Cliente é obrigatório"),
   amount: z.number().min(0.01, "Valor deve ser maior que zero"),
-  payment_date: z.string().min(1, "Data é obrigatória"),
-  notes: z.string().optional(),
+  paid_at: z.string().min(1, "Data é obrigatória"),
 });
 
 type PaymentFormData = z.infer<typeof paymentSchema>;
@@ -33,8 +32,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
     defaultValues: {
       client_id: "",
       amount: 0,
-      payment_date: new Date().toISOString().split("T")[0],
-      notes: "",
+      paid_at: new Date().toISOString().split("T")[0],
     },
   });
 
@@ -54,11 +52,14 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
   const onSubmit = async (data: PaymentFormData) => {
     setIsLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase.from("payments").insert({
+        user_id: user.id,
         client_id: data.client_id,
         amount: data.amount,
-        payment_date: data.payment_date,
-        notes: data.notes,
+        paid_at: data.paid_at,
       });
 
       if (error) throw error;
@@ -129,26 +130,12 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
 
         <FormField
           control={form.control}
-          name="payment_date"
+          name="paid_at"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Data do Recebimento</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Observações</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Observações sobre o recebimento..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

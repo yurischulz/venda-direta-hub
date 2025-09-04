@@ -168,10 +168,24 @@ const Dashboard = () => {
             </Card>
 
             <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <Link to="/sales" className="block p-4">
+              <Link to="/payments" className="block p-4">
                 <div className="text-center space-y-3">
                   <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                     <DollarSign className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">Recebimentos</h3>
+                    <p className="text-xs text-muted-foreground">Controlar</p>
+                  </div>
+                </div>
+              </Link>
+            </Card>
+
+            <Card className="card-hover animate-slide-up" style={{ animationDelay: '0.4s' }}>
+              <Link to="/sales" className="block p-4">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                    <ShoppingCart className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="font-medium">Vendas</h3>
