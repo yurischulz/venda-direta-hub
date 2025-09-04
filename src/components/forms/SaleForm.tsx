@@ -180,6 +180,8 @@ export const SaleForm = ({ saleId, preselectedClientId, onSuccess }: SaleFormPro
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sales'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-accounts-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['customer-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast({
         title: 'Venda registrada!',
