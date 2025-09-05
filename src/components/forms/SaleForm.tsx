@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MoneyInput } from '@/components/ui/money-input';
@@ -56,21 +56,19 @@ export const SaleForm = ({
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
   const [pendingClients, setPendingClients] = useState<PendingClient[]>([]);
   const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
+  const [addedItems, setAddedItems] = useState<SaleItem[]>([]);
+  const [currentProduct, setCurrentProduct] = useState<string>('');
+  const [currentQuantity, setCurrentQuantity] = useState<number>(1);
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
+  
   const { invalidateSalesData } = useInvalidateRelated();
-  const { control, handleSubmit, reset, watch, setValue } =
-    useForm<SaleFormData>({
-      defaultValues: {
-        items: [{ product_id: '', quantity: 1, unit_price: 0 }],
-      },
-    });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'items',
+  const { control, handleSubmit, reset } = useForm<SaleFormData>({
+    defaultValues: {
+      items: [],
+    },
   });
 
-  const watchedItems = watch('items');
-  const total = watchedItems.reduce(
+  const total = addedItems.reduce(
     (sum, item) => sum + item.quantity * item.unit_price,
     0
   );
@@ -135,18 +133,70 @@ export const SaleForm = ({
   };
 
   // Auto-fill price when product changes
-  const handleProductChange = (index: number, productId: string) => {
+  const handleProductChange = (productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
-      setValue(`items.${index}.product_id`, productId);
-      setValue(`items.${index}.unit_price`, Number(product.price));
+      setCurrentProduct(productId);
+      setCurrentPrice(Number(product.price));
     } else {
-      setValue(`items.${index}.product_id`, productId);
-      // For new products, keep current price or set to 0
-      if (!watchedItems[index]?.unit_price) {
-        setValue(`items.${index}.unit_price`, 0);
+      setCurrentProduct(productId);
+      if (!currentPrice) {
+        setCurrentPrice(0);
       }
     }
+  };
+
+  // Add product to list
+  const handleAddProduct = () => {
+    if (!currentProduct) {
+      toast({
+        title: 'Erro',
+        description: 'Selecione um produto.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (currentQuantity <= 0) {
+      toast({
+        title: 'Erro',
+        description: 'A quantidade deve ser maior que zero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (currentPrice < 0) {
+      toast({
+        title: 'Erro',
+        description: 'O preço deve ser maior ou igual a zero.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const newItem: SaleItem = {
+      product_id: currentProduct,
+      quantity: currentQuantity,
+      unit_price: currentPrice,
+    };
+
+    setAddedItems(prev => [...prev, newItem]);
+    
+    // Clear current product form
+    setCurrentProduct('');
+    setCurrentQuantity(1);
+    setCurrentPrice(0);
+    
+    toast({
+      title: 'Produto adicionado',
+      description: 'O produto foi adicionado à venda.',
+    });
+  };
+
+  // Remove product from list
+  const handleRemoveItem = (index: number) => {
+    setAddedItems(prev => prev.filter((_, i) => i !== index));
   };
 
   // Get all clients including pending ones
@@ -170,8 +220,14 @@ export const SaleForm = ({
     })),
   ];
 
+  // Get product name for display
+  const getProductName = (productId: string) => {
+    const product = allProducts.find(p => p.id === productId);
+    return product?.name || 'Produto não encontrado';
+  };
+
   const mutation = useMutation({
-    mutationFn: async (data: SaleFormData) => {
+    mutationFn: async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -181,10 +237,7 @@ export const SaleForm = ({
         throw new Error('Selecione um cliente');
       }
 
-      if (
-        data.items.length === 0 ||
-        !data.items.some((item) => item.product_id)
-      ) {
+      if (addedItems.length === 0) {
         throw new Error('Adicione pelo menos um produto');
       }
 
@@ -210,7 +263,7 @@ export const SaleForm = ({
       }
 
       // Create pending products if needed
-      const itemsWithPendingProducts = data.items.filter((item) =>
+      const itemsWithPendingProducts = addedItems.filter((item) =>
         pendingProducts.some((pp) => pp.tempId === item.product_id)
       );
 
@@ -235,7 +288,6 @@ export const SaleForm = ({
       }
 
       // Create sale - user_id still needed for sales table
-      // Ajusta created_at com base na data/hora local do usuário em UTC (+00:00) com microssegundos
       const createdAtIso = new Date().toISOString();
       const createdAtUtcMicros = createdAtIso
         .replace('Z', '+00:00')
@@ -244,7 +296,7 @@ export const SaleForm = ({
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
-          user_id: user.id, // Still needed since no trigger sets this for sales
+          user_id: user.id,
           client_id: finalClientId,
           affiliation_id: selectedAffiliation || null,
           total: 0, // Will be calculated by trigger
@@ -266,16 +318,14 @@ export const SaleForm = ({
         throw saleError;
       }
 
-      // Create sale items - triggers will set user_id and calculate totals
-      const saleItems = data.items
-        .filter((item) => item.product_id)
-        .map((item) => ({
-          sale_id: sale.id,
-          product_id: createdProductIds[item.product_id] || item.product_id,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          user_id: user.id,
-        }));
+      // Create sale items
+      const saleItems = addedItems.map((item) => ({
+        sale_id: sale.id,
+        product_id: createdProductIds[item.product_id] || item.product_id,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        user_id: user.id,
+      }));
 
       const { error: itemsError } = await supabase
         .from('sale_items')
@@ -307,18 +357,22 @@ export const SaleForm = ({
       }
     },
     onSuccess: () => {
-      invalidateSalesData(); // Uses optimized invalidation
+      invalidateSalesData();
       toast({
         title: 'Venda registrada!',
         description: 'A venda foi registrada com sucesso.',
       });
       reset({
-        items: [{ product_id: '', quantity: 1, unit_price: 0 }],
+        items: [],
       });
       setSelectedClient('');
       setSelectedAffiliation('');
       setPendingClients([]);
       setPendingProducts([]);
+      setAddedItems([]);
+      setCurrentProduct('');
+      setCurrentQuantity(1);
+      setCurrentPrice(0);
       onSuccess?.();
     },
     onError: (error: any) => {
@@ -330,8 +384,8 @@ export const SaleForm = ({
     },
   });
 
-  const onSubmit = (data: SaleFormData) => {
-    mutation.mutate(data);
+  const onSubmit = () => {
+    mutation.mutate();
   };
 
   const formatCurrency = (value: number) =>
@@ -363,129 +417,119 @@ export const SaleForm = ({
             </p>
           </div>
 
-          {/* Products */}
+          {/* Product Form */}
           <div className='space-y-4'>
-            <div className='flex items-center justify-between'>
-              <Label>Produtos *</Label>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={() =>
-                  append({ product_id: '', quantity: 1, unit_price: 0 })
-                }
-                className='mobile-tap'
-              >
-                <Plus className='h-4 w-4 mr-1' />
-                Produto
-              </Button>
-            </div>
+            <Label>Adicionar Produto *</Label>
+            
+            <Card className='p-4'>
+              <div className='space-y-3'>
+                <div className='space-y-2'>
+                  <Label>Produto</Label>
+                  <ProductSearchInput
+                    products={allProducts}
+                    value={currentProduct}
+                    onValueChange={handleProductChange}
+                    onCreateNew={(productName) => {
+                      const tempId = handleCreateProduct(productName);
+                      handleProductChange(tempId);
+                    }}
+                    placeholder='Digite o nome do produto'
+                    className='mobile-input'
+                  />
+                  <p className='text-sm text-gray-400 mt-1 flex items-center'>
+                    <Info className='w-4 h-4 mr-2' />
+                    Para cadastrar um novo produto, basta digitar o nome no
+                    campo acima.
+                  </p>
+                </div>
 
-            {fields.length === 0 && (
-              <Card className='p-6 text-center'>
-                <Package className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
-                <p className='text-muted-foreground mb-4'>
-                  Nenhum produto adicionado
-                </p>
+                <div className='grid grid-cols-2 gap-3'>
+                  <div>
+                    <Label>Quantidade</Label>
+                    <Input
+                      type='number'
+                      min='1'
+                      value={currentQuantity}
+                      onChange={(e) => setCurrentQuantity(Number(e.target.value))}
+                      className='mobile-input'
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Preço unitário</Label>
+                    <MoneyInput
+                      className='mobile-input'
+                      placeholder='R$ 0,00'
+                      value={currentPrice}
+                      onValueChange={setCurrentPrice}
+                    />
+                  </div>
+                </div>
+
+                <div className='text-right'>
+                  <span className='text-sm text-muted-foreground'>
+                    Subtotal:{' '}
+                  </span>
+                  <span className='font-medium'>
+                    {formatCurrency(currentQuantity * currentPrice)}
+                  </span>
+                </div>
+
                 <Button
                   type='button'
-                  onClick={() =>
-                    append({ product_id: '', quantity: 1, unit_price: 0 })
-                  }
-                  className='mobile-tap'
+                  onClick={handleAddProduct}
+                  className='w-full mobile-tap'
+                  disabled={!currentProduct}
                 >
                   <Plus className='h-4 w-4 mr-2' />
                   Adicionar Produto
                 </Button>
-              </Card>
-            )}
-
-            {fields.map((field, index) => (
-              <Card key={field.id} className='p-4'>
-                <div className='flex items-start justify-between mb-4'>
-                  <h4 className='font-medium'>Produto {index + 1}</h4>
-                  {fields.length > 1 && (
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => remove(index)}
-                      className='mobile-tap text-destructive'
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  )}
-                </div>
-
-                <div className='space-y-3'>
-                  <div className='space-y-2'>
-                    <Label>Produto</Label>
-                    <ProductSearchInput
-                      products={allProducts}
-                      value={watchedItems[index]?.product_id || ''}
-                      onValueChange={(value) =>
-                        handleProductChange(index, value)
-                      }
-                      onCreateNew={(productName) => {
-                        const tempId = handleCreateProduct(productName);
-                        handleProductChange(index, tempId);
-                      }}
-                      placeholder='Digite o nome do produto'
-                      className='mobile-input'
-                    />
-                    <p className='text-sm text-gray-400 mt-1 flex items-center'>
-                      <Info className='w-4 h-4 mr-2' />
-                      Para cadastrar um novo produto, basta digitar o nome no
-                      campo acima.
-                    </p>
-                  </div>
-
-                  <div className='grid grid-cols-2 gap-3'>
-                    <div>
-                      <Label>Quantidade</Label>
-                      <Input
-                        type='number'
-                        min='0'
-                        defaultValue={field.quantity}
-                        className='mobile-input'
-                        {...control.register(`items.${index}.quantity`, {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Preço unitário</Label>
-                      <Controller
-                        name={`items.${index}.unit_price`}
-                        control={control}
-                        render={({ field }) => (
-                          <MoneyInput
-                            className='mobile-input'
-                            placeholder='R$ 0,00'
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className='text-right'>
-                    <span className='text-sm text-muted-foreground'>
-                      Subtotal:{' '}
-                    </span>
-                    <span className='font-medium'>
-                      {formatCurrency(
-                        (watchedItems[index]?.quantity || 0) *
-                          (watchedItems[index]?.unit_price || 0)
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            ))}
+              </div>
+            </Card>
           </div>
+
+          {/* Added Products List */}
+          {addedItems.length > 0 && (
+            <div className='space-y-4'>
+              <Label>Produtos Adicionados ({addedItems.length})</Label>
+              
+              <div className='space-y-3'>
+                {addedItems.map((item, index) => (
+                  <Card key={index} className='p-4'>
+                    <div className='flex items-start justify-between'>
+                      <div className='flex-1'>
+                        <h4 className='font-medium'>{getProductName(item.product_id)}</h4>
+                        <div className='text-sm text-muted-foreground mt-1'>
+                          Quantidade: {item.quantity} | Preço: {formatCurrency(item.unit_price)}
+                        </div>
+                        <div className='font-medium mt-1'>
+                          Subtotal: {formatCurrency(item.quantity * item.unit_price)}
+                        </div>
+                      </div>
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => handleRemoveItem(index)}
+                        className='mobile-tap text-destructive'
+                      >
+                        <Trash2 className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {addedItems.length === 0 && (
+            <Card className='p-6 text-center'>
+              <Package className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
+              <p className='text-muted-foreground'>
+                Nenhum produto adicionado à venda
+              </p>
+            </Card>
+          )}
 
           {/* Total */}
           <Card className='bg-primary/5'>
@@ -501,7 +545,7 @@ export const SaleForm = ({
 
           <Button
             type='submit'
-            disabled={mutation.isPending || !selectedClient || total === 0}
+            disabled={mutation.isPending || !selectedClient || addedItems.length === 0}
             className='mobile-button w-full mobile-tap'
           >
             {mutation.isPending && (
