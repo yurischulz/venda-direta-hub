@@ -277,11 +277,11 @@ const CustomerAccounts = () => {
                       </div>
                     </div>
 
-                    {/* Última Transação */}
+                    {/* Último Recebimento */}
                     <div className='flex items-center justify-between text-xs'>
                       <div className='flex flex-col space-y-1 text-xs'>
                         <span className='text-muted-foreground'>
-                          Última transação
+                          Último recebimento
                         </span>
                         <span className='text-muted-foreground'>
                           {formatDate(account.last_transaction_at)}
