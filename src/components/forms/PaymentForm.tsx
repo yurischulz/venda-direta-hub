@@ -13,6 +13,29 @@ import { toast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Helpers para lidar com data/hora local e UTC
+function formatLocalForInput(dt: Date) {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const y = dt.getFullYear();
+  const m = pad(dt.getMonth() + 1);
+  const d = pad(dt.getDate());
+  const hh = pad(dt.getHours());
+  const mm = pad(dt.getMinutes());
+  return `${y}-${m}-${d}T${hh}:${mm}`;
+}
+
+function toUtcWithMicrosFromLocal(localInput: string) {
+  const d = new Date(localInput);
+  let iso = d.toISOString(); // e.g., 2025-09-05T19:47:00.000Z
+  iso = iso.replace('Z', '+00:00');
+  if (/\.\d{3}\+00:00$/.test(iso)) {
+    iso = iso.replace(/\.(\d{3})\+00:00$/, '.$1000+00:00');
+  } else {
+    iso = iso.replace(/\+00:00$/, '.000000+00:00');
+  }
+  return iso;
+}
+
 const paymentSchema = z.object({
   client_id: z.string().min(1, "Cliente é obrigatório"),
   amount: z.number().min(0.01, "Valor deve ser maior que zero"),
@@ -35,7 +58,7 @@ export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps
     defaultValues: {
       client_id: preselectedClientId || "",
       amount: 0,
-      paid_at: new Date().toISOString().split("T")[0],
+      paid_at: formatLocalForInput(new Date()),
     },
   });
 
@@ -62,7 +85,7 @@ export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps
       const { error } = await supabase.from("payments").insert({
         client_id: data.client_id,
         amount: data.amount,
-        paid_at: data.paid_at,
+        paid_at: toUtcWithMicrosFromLocal(data.paid_at),
         user_id: user.id,
       });
 
@@ -158,7 +181,7 @@ export function PaymentForm({ preselectedClientId, onSuccess }: PaymentFormProps
             <FormItem>
               <FormLabel>Data do Recebimento</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input type="datetime-local" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

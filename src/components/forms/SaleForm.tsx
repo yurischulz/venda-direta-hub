@@ -235,6 +235,12 @@ export const SaleForm = ({
       }
 
       // Create sale - user_id still needed for sales table
+      // Ajusta created_at com base na data/hora local do usuário em UTC (+00:00) com microssegundos
+      const createdAtIso = new Date().toISOString();
+      const createdAtUtcMicros = createdAtIso
+        .replace('Z', '+00:00')
+        .replace(/\.(\d{3})\+00:00$/, '.$1000+00:00');
+
       const { data: sale, error: saleError } = await supabase
         .from('sales')
         .insert({
@@ -242,6 +248,7 @@ export const SaleForm = ({
           client_id: finalClientId,
           affiliation_id: selectedAffiliation || null,
           total: 0, // Will be calculated by trigger
+          created_at: createdAtUtcMicros,
         })
         .select()
         .single();
