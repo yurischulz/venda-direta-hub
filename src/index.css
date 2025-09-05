@@ -154,9 +154,27 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
   }
 
   /* Tab styles */
+  .tabs {
+    @apply flex w-full bg-card;
+    @apply bg-gray-100 p-1 space-x-4 rounded-full;
+  }
+
+  .tabs-trigger {
+    @apply flex-1 px-4 py-3 text-center font-medium transition-colors;
+    @apply bg-transparent rounded-full;
+    @apply border-b-2 border-transparent;
+    @apply hover:bg-muted hover:text-foreground;
+    @apply inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background;
+    @apply disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm;
+  }
+
+  .tabs-content {
+    @apply mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
   .mobile-tabs {
     @apply flex w-full bg-card;
-    @apply bg-gray-100 p-2 space-x-4 rounded-full;
+    @apply bg-gray-100 p-1 space-x-4 rounded-full;
   }
 
   .mobile-tab {
