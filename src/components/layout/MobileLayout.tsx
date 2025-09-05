@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface MobileLayoutProps {
@@ -42,9 +42,16 @@ export const MobileLayout = ({
           <div className="flex items-center space-x-2">
             {actions}
             {isDashboard && (
-              <Button variant="ghost" size="sm" onClick={signOut} className="mobile-tap">
-                <LogOut className="h-4 w-4" />
-              </Button>
+              <>
+                <Button variant="ghost" size="sm" asChild className="mobile-tap">
+                  <Link to="/settings">
+                    <Settings className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={signOut} className="mobile-tap">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
             )}
           </div>
         </div>

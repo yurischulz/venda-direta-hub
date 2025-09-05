@@ -14,6 +14,7 @@ import Sales from "./pages/Sales";
 import Payments from "./pages/Payments";
 import CustomerAccounts from "./pages/CustomerAccounts";
 import AccountDetail from "./pages/AccountDetail";
+import Settings from "./pages/Settings";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
 import { queryClient } from "@/lib/queryClient";
@@ -88,6 +89,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <AccountDetail />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <RequireAuth>
+                  <Settings />
                 </RequireAuth>
               }
             />

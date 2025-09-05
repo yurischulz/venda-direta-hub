@@ -13,10 +13,13 @@ import {
   FileText,
   ChevronRight,
   Users,
+  MessageSquare,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatPhoneForDisplay } from '@/lib/phone-utils';
+import { ChargeModal } from '@/components/forms/ChargeModal';
+import { useState } from 'react';
 
 interface CustomerAccount {
   id: string;
@@ -35,6 +38,11 @@ interface CustomerAccount {
 const CustomerAccounts = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [chargeModalOpen, setChargeModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<{
+    name: string;
+    phone: string;
+  } | null>(null);
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -136,6 +144,12 @@ const CustomerAccounts = () => {
     searchParams.get('from') !== null
       ? `/${searchParams.get('from')}`
       : '/dashboard';
+
+  const handleChargeClick = (e: React.MouseEvent, clientName: string, clientPhone: string) => {
+    e.stopPropagation();
+    setSelectedClient({ name: clientName, phone: clientPhone });
+    setChargeModalOpen(true);
+  };
 
   return (
     <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
@@ -288,10 +302,20 @@ const CustomerAccounts = () => {
                           {formatDate(account.last_transaction_at)}
                         </span>
                       </div>
-                      {/* Telefone (se disponível) */}
-                      {account.clients.phone && (
+                      {/* Botão de Cobrança (se telefone disponível) */}
+                      {account.clients.phone ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 px-2 text-xs"
+                          onClick={(e) => handleChargeClick(e, account.clients.name, account.clients.phone!)}
+                        >
+                          <MessageSquare className="h-3 w-3 mr-1" />
+                          Cobrar
+                        </Button>
+                      ) : (
                         <div className='text-xs text-muted-foreground'>
-                          📞 {formatPhoneForDisplay(account.clients.phone)}
+                          Sem telefone
                         </div>
                       )}
                     </div>
@@ -301,6 +325,16 @@ const CustomerAccounts = () => {
             })
           )}
         </div>
+
+        {/* Modal de Cobrança */}
+        {selectedClient && (
+          <ChargeModal
+            isOpen={chargeModalOpen}
+            onClose={() => setChargeModalOpen(false)}
+            clientName={selectedClient.name}
+            clientPhone={selectedClient.phone}
+          />
+        )}
       </div>
     </MobileLayout>
   );
