@@ -13,8 +13,8 @@ import {
   FileText,
   ChevronRight,
   Users,
-  MessageSquare,
 } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatPhoneForDisplay } from '@/lib/phone-utils';
@@ -307,10 +307,10 @@ const CustomerAccounts = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 px-2 text-xs"
+                          className="h-8 px-2 text-xs bg-green-600 hover:bg-green-700 text-white border-green-600"
                           onClick={(e) => handleChargeClick(e, account.clients.name, account.clients.phone!)}
                         >
-                          <MessageSquare className="h-3 w-3 mr-1" />
+                          <FaWhatsapp className="h-3 w-3 mr-1" />
                           Cobrar
                         </Button>
                       ) : (

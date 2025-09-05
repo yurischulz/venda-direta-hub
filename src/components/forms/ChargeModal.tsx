@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { MoneyInput } from '@/components/ui/money-input';
-import { MessageSquare, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChargeModalProps {
@@ -94,7 +95,7 @@ export const ChargeModal = ({ isOpen, onClose, clientName, clientPhone }: Charge
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
+            <FaWhatsapp className="h-5 w-5 text-green-500" />
             <span>Cobrar via WhatsApp</span>
           </DialogTitle>
         </DialogHeader>
