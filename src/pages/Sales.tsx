@@ -335,7 +335,7 @@ const Sales = () => {
                     </Card>
                     <Card>
                       <CardContent className='p-3 text-center'>
-                        <div className='text-lg font-bold text-primary text-purple-600'>
+                        <div className='text-lg font-bold text-primary text-purple-500'>
                           {formatCurrency(stats.avgSaleValue).trim()}
                         </div>
                         <div className='text-xs text-muted-foreground'>

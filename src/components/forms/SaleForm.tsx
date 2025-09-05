@@ -411,7 +411,7 @@ export const SaleForm = ({
                 </div>
 
                 <div className='space-y-3'>
-                  <div>
+                  <div className='space-y-2'>
                     <Label>Produto</Label>
                     <ProductSearchInput
                       products={allProducts}
@@ -426,6 +426,11 @@ export const SaleForm = ({
                       placeholder='Digite o nome do produto'
                       className='mobile-input'
                     />
+                    <p className='text-sm text-gray-400 mt-1 flex items-center'>
+                      <Info className='w-4 h-4 mr-2' />
+                      Para cadastrar um novo produto, basta digitar o nome no
+                      campo acima.
+                    </p>
                   </div>
 
                   <div className='grid grid-cols-2 gap-3'>
