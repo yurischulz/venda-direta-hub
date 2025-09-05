@@ -186,7 +186,7 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
 
   .mobile-tab {
     @apply flex-1 px-4 py-3;
-    @apply text-center font-medium text-sm;
+    @apply text-center font-medium text-[11px] sm:text-sm;
     @apply bg-transparent rounded-full;
     @apply border-b-2 border-transparent;
     @apply hover:bg-muted hover:text-foreground transition-colors;
