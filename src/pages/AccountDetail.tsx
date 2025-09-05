@@ -23,10 +23,12 @@ import {
   TrendingUp,
   TrendingDown,
   Edit,
-  Trash2
+  Trash2,
+  Copy
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { formatPhoneForDisplay } from '@/lib/phone-utils';
 
 interface AccountDetailData {
   account: {
@@ -164,6 +166,38 @@ const AccountDetail = () => {
     return type === 'sale' ? ShoppingCart : DollarSign;
   };
 
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers and HTTP contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+      }
+      
+      toast({
+        title: 'Copiado!',
+        description: `${label} copiado para a área de transferência.`,
+      });
+    } catch (err) {
+      toast({
+        title: 'Erro ao copiar',
+        description: 'Não foi possível copiar o conteúdo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <MobileLayout title="Carregando..." showBackButton backTo="/customer-accounts">
@@ -277,15 +311,35 @@ const AccountDetail = () => {
                     <span>{client.name}</span>
                   </div>
                   {client.phone && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <span className="text-muted-foreground">📞</span>
-                      <span>{client.phone}</span>
+                    <div className="flex items-center justify-between text-sm group">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-muted-foreground">📞</span>
+                        <span>{formatPhoneForDisplay(client.phone)}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(client.phone!, 'Telefone')}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 mobile-tap"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
                     </div>
                   )}
                   {client.email && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <span className="text-muted-foreground">✉️</span>
-                      <span>{client.email}</span>
+                    <div className="flex items-center justify-between text-sm group">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-muted-foreground">✉️</span>
+                        <span>{client.email}</span>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => copyToClipboard(client.email!, 'Email')}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 mobile-tap"
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
                     </div>
                   )}
                 </CardContent>
