@@ -258,8 +258,8 @@ const CustomerAccounts = () => {
                     </div>
 
                     {/* Resumo de Totais */}
-                    <div className='grid grid-cols-2 gap-4 pt-2 border-t'>
-                      <div>
+                    <div className='flex items-center justify-between gap-4 pt-2 border-t'>
+                      <div className='space-y-1'>
                         <div className='text-xs text-muted-foreground'>
                           Total Vendas
                         </div>
@@ -267,11 +267,11 @@ const CustomerAccounts = () => {
                           {formatCurrency(account.total_sales)}
                         </div>
                       </div>
-                      <div>
+                      <div className='space-y-1'>
                         <div className='text-xs text-muted-foreground'>
                           Total Recebido
                         </div>
-                        <div className='font-medium text-sm text-green-600'>
+                        <div className='font-medium text-sm text-green-600 text-right'>
                           {formatCurrency(account.total_payments)}
                         </div>
                       </div>
@@ -279,18 +279,21 @@ const CustomerAccounts = () => {
 
                     {/* Última Transação */}
                     <div className='flex items-center justify-between text-xs'>
-                      <span className='text-muted-foreground'>
-                        Última transação:
-                      </span>
-                      <span>{formatDate(account.last_transaction_at)}</span>
-                    </div>
-
-                    {/* Telefone (se disponível) */}
-                    {account.clients.phone && (
-                      <div className='text-xs text-muted-foreground'>
-                        📞 {account.clients.phone}
+                      <div className='flex flex-col space-y-1 text-xs'>
+                        <span className='text-muted-foreground'>
+                          Última transação
+                        </span>
+                        <span className='text-muted-foreground'>
+                          {formatDate(account.last_transaction_at)}
+                        </span>
                       </div>
-                    )}
+                      {/* Telefone (se disponível) */}
+                      {account.clients.phone && (
+                        <div className='text-xs text-muted-foreground'>
+                          📞 {account.clients.phone}
+                        </div>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               );
