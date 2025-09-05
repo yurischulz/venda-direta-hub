@@ -129,7 +129,7 @@ export function SearchableInput<T>({
       </div>
 
       {isOpen && (
-        <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-background border shadow-lg">
+        <Card className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto bg-card border shadow-lg backdrop-blur-none">
           {filteredItems.length === 0 && !showCreateOption ? (
             <div className="p-3 text-sm text-muted-foreground text-center">
               Nenhum resultado encontrado
