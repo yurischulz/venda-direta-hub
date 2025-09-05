@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -25,7 +25,7 @@ export const AffiliationForm = ({
   onSuccess,
 }: AffiliationFormProps) => {
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, setValue } =
+  const { register, handleSubmit, reset, setValue, control } =
     useForm<AffiliationFormData>();
 
   // Fetch affiliation data if editing
@@ -128,11 +128,18 @@ export const AffiliationForm = ({
 
           <div className='space-y-2'>
             <Label htmlFor='phone'>Telefone</Label>
-            <PhoneInput
-              id='phone'
-              {...register('phone')}
-              className='mobile-input'
-              placeholder='(11) 99999-9999'
+            <Controller
+              name='phone'
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  id='phone'
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  className='mobile-input'
+                  placeholder='(11) 99999-9999'
+                />
+              )}
             />
           </div>
 

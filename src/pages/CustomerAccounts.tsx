@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { formatPhoneForDisplay } from '@/lib/phone-utils';
 
 interface CustomerAccount {
   id: string;
@@ -290,7 +291,7 @@ const CustomerAccounts = () => {
                       {/* Telefone (se disponível) */}
                       {account.clients.phone && (
                         <div className='text-xs text-muted-foreground'>
-                          📞 {account.clients.phone}
+                          📞 {formatPhoneForDisplay(account.clients.phone)}
                         </div>
                       )}
                     </div>
