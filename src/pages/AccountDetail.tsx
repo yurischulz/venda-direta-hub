@@ -271,9 +271,7 @@ const AccountDetail = () => {
                     <span>Saldo da Ficha</span>
                     <Badge
                       variant={
-                        account.current_balance > 0
-                          ? 'destructive'
-                          : 'secondary'
+                        account.current_balance > 0 ? 'success' : 'secondary'
                       }
                     >
                       {account.status === 'active'
