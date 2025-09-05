@@ -204,12 +204,24 @@ export default function Payments() {
                       {balances.map((balance) => (
                         <Card key={balance.client_id}>
                           <CardContent className='p-4'>
-                            <div className='flex justify-between items-start'>
-                              <div className='flex-1'>
+                            <div className='flex-1'>
+                              <div className='flex justify-between items-start'>
                                 <h3 className='font-medium mb-2'>
                                   {balance.client_name}
                                 </h3>
-                                <div className='space-y-1 text-sm text-muted-foreground'>
+                                <Badge
+                                  variant={
+                                    balance.balance > 0
+                                      ? 'destructive'
+                                      : 'secondary'
+                                  }
+                                  className='ml-2'
+                                >
+                                  {formatCurrency(balance.balance)}
+                                </Badge>
+                              </div>
+                              <div className='flex justify-between items-start'>
+                                <div className='space-y-1 text-sm text-muted-foreground w-full'>
                                   <div className='flex justify-between'>
                                     <span>Vendas:</span>
                                     <span>
@@ -224,16 +236,6 @@ export default function Payments() {
                                   </div>
                                 </div>
                               </div>
-                              <Badge
-                                variant={
-                                  balance.balance > 0
-                                    ? 'destructive'
-                                    : 'secondary'
-                                }
-                                className='ml-2'
-                              >
-                                {formatCurrency(balance.balance)}
-                              </Badge>
                             </div>
                           </CardContent>
                         </Card>
