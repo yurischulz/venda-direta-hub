@@ -143,6 +143,10 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
     }
   }
 
+  .card {
+    @apply text-base sm:text-lg font-semibold leading-none tracking-tight;
+  }
+
   .card-hover {
     @apply transition-all duration-200 hover:shadow-mobile active:scale-[0.98];
   }
