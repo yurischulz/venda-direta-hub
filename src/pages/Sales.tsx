@@ -322,32 +322,40 @@ const Sales = () => {
               ) : (
                 <>
                   {/* Statistics Cards */}
-                  <div className='grid grid-cols-2 gap-3'>
+                  <div className='grid grid-cols-3 gap-3'>
                     <Card>
                       <CardContent className='p-3 text-center'>
-                        <div className='text-2xl font-bold text-primary'>
+                        <div className='text-xl font-bold text-primary'>
                           {stats.totalSales}
                         </div>
                         <div className='text-xs text-muted-foreground'>
-                          Total de Vendas
+                          Quantidade
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className='p-3 text-center'>
+                        <div className='text-lg font-bold text-primary text-purple-600'>
+                          {formatCurrency(stats.avgSaleValue).trim()}
+                        </div>
+                        <div className='text-xs text-muted-foreground'>
+                          Média
                         </div>
                       </CardContent>
                     </Card>
                     <Card>
                       <CardContent className='p-3 text-center'>
                         <div className='text-lg font-bold text-green-600'>
-                          {formatCurrency(stats.finalizedValue)
-                            .replace('R$', '')
-                            .trim()}
+                          {formatCurrency(stats.finalizedValue).trim()}
                         </div>
                         <div className='text-xs text-muted-foreground'>
-                          Valor Finalizado
+                          Total vendido
                         </div>
                       </CardContent>
                     </Card>
                   </div>
 
-                  <div className='grid grid-cols-3 gap-2'>
+                  {/* <div className='grid grid-cols-3 gap-2'>
                     <Card>
                       <CardContent className='p-3 text-center'>
                         <div className='text-xl font-bold text-blue-600'>
@@ -368,19 +376,7 @@ const Sales = () => {
                         </div>
                       </CardContent>
                     </Card>
-                    <Card>
-                      <CardContent className='p-3 text-center'>
-                        <div className='text-sm font-bold text-purple-600'>
-                          {formatCurrency(stats.avgSaleValue)
-                            .replace('R$', '')
-                            .trim()}
-                        </div>
-                        <div className='text-xs text-muted-foreground'>
-                          Média
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                  </div> */}
 
                   {/* Recent Sales Preview */}
                   <Card>
