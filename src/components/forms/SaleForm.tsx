@@ -10,8 +10,12 @@ import { ProductSearchInput } from '@/components/ui/product-search-input';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useOptimizedQuery, useStaticQuery, useInvalidateRelated } from '@/hooks/use-optimized-query';
-import { Loader2, Plus, Trash2, Package } from 'lucide-react';
+import {
+  useOptimizedQuery,
+  useStaticQuery,
+  useInvalidateRelated,
+} from '@/hooks/use-optimized-query';
+import { Loader2, Plus, Trash2, Package, Info } from 'lucide-react';
 
 interface SaleItem {
   product_id: string;
@@ -72,43 +76,37 @@ export const SaleForm = ({
   );
 
   // Fetch clients with optimized caching
-  const { data: clients = [] } = useOptimizedQuery(
-    ['clients'],
-    async () => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+  const { data: clients = [] } = useOptimizedQuery(['clients'], async () => {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
-        .from('clients')
-        .select(
-          `
+    const { data, error } = await supabase
+      .from('clients')
+      .select(
+        `
           *,
           affiliations (id, name)
         `
-        )
-        .eq('user_id', userId);
+      )
+      .eq('user_id', userId);
 
-      if (error) throw error;
-      return data;
-    }
-  );
+    if (error) throw error;
+    return data;
+  });
 
   // Fetch products with static caching (they change less frequently)
-  const { data: products = [] } = useStaticQuery(
-    ['products'],
-    async () => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
+  const { data: products = [] } = useStaticQuery(['products'], async () => {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('user_id', userId);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('user_id', userId);
 
-      if (error) throw error;
-      return data;
-    }
-  );
+    if (error) throw error;
+    return data;
+  });
 
   // Auto-set affiliation when client changes
   useEffect(() => {
@@ -124,7 +122,7 @@ export const SaleForm = ({
   const handleCreateClient = (clientName: string) => {
     const tempId = `temp_client_${Date.now()}`;
     const newClient: PendingClient = { name: clientName, tempId };
-    setPendingClients(prev => [...prev, newClient]);
+    setPendingClients((prev) => [...prev, newClient]);
     setSelectedClient(tempId);
   };
 
@@ -132,7 +130,7 @@ export const SaleForm = ({
   const handleCreateProduct = (productName: string) => {
     const tempId = `temp_product_${Date.now()}`;
     const newProduct: PendingProduct = { name: productName, tempId };
-    setPendingProducts(prev => [...prev, newProduct]);
+    setPendingProducts((prev) => [...prev, newProduct]);
     return tempId;
   };
 
@@ -154,22 +152,22 @@ export const SaleForm = ({
   // Get all clients including pending ones
   const allClients = [
     ...clients,
-    ...pendingClients.map(pc => ({
+    ...pendingClients.map((pc) => ({
       id: pc.tempId,
       name: pc.name,
-      affiliations: null
-    }))
+      affiliations: null,
+    })),
   ];
 
-  // Get all products including pending ones  
+  // Get all products including pending ones
   const allProducts = [
     ...products,
-    ...pendingProducts.map(pp => ({
+    ...pendingProducts.map((pp) => ({
       id: pp.tempId,
       name: pp.name,
       price: 0,
-      unit: null
-    }))
+      unit: null,
+    })),
   ];
 
   const mutation = useMutation({
@@ -194,39 +192,43 @@ export const SaleForm = ({
       let createdProductIds: Record<string, string> = {};
 
       // Create pending client if needed
-      const pendingClient = pendingClients.find(pc => pc.tempId === selectedClient);
+      const pendingClient = pendingClients.find(
+        (pc) => pc.tempId === selectedClient
+      );
       if (pendingClient) {
         const { data: newClient, error: clientError } = await supabase
           .from('clients')
           .insert({
             name: pendingClient.name,
-            user_id: user.id
+            user_id: user.id,
           })
           .select()
           .single();
-        
+
         if (clientError) throw clientError;
         finalClientId = newClient.id;
       }
 
       // Create pending products if needed
-      const itemsWithPendingProducts = data.items.filter(item => 
-        pendingProducts.some(pp => pp.tempId === item.product_id)
+      const itemsWithPendingProducts = data.items.filter((item) =>
+        pendingProducts.some((pp) => pp.tempId === item.product_id)
       );
-      
+
       for (const item of itemsWithPendingProducts) {
-        const pendingProduct = pendingProducts.find(pp => pp.tempId === item.product_id);
+        const pendingProduct = pendingProducts.find(
+          (pp) => pp.tempId === item.product_id
+        );
         if (pendingProduct) {
           const { data: newProduct, error: productError } = await supabase
             .from('products')
             .insert({
               name: pendingProduct.name,
               price: item.unit_price,
-              user_id: user.id
+              user_id: user.id,
             })
             .select()
             .single();
-          
+
           if (productError) throw productError;
           createdProductIds[item.product_id] = newProduct.id;
         }
@@ -332,7 +334,7 @@ export const SaleForm = ({
     }).format(value);
 
   return (
-    <Card>
+    <Card className='py-4'>
       <CardContent className='mobile-form'>
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           {/* Client Selection */}
@@ -343,9 +345,15 @@ export const SaleForm = ({
               value={selectedClient}
               onValueChange={setSelectedClient}
               onCreateNew={handleCreateClient}
-              placeholder="Digite o nome do cliente"
-              className="mobile-input"
+              placeholder='Digite o nome do cliente'
+              className='mobile-input'
             />
+
+            <p className='text-sm text-gray-400 mt-1 flex items-center'>
+              <Info className='w-4 h-4 mr-2' />
+              Para cadastrar um novo cliente, basta digitar o nome no campo
+              acima.
+            </p>
           </div>
 
           {/* Products */}
@@ -408,13 +416,15 @@ export const SaleForm = ({
                     <ProductSearchInput
                       products={allProducts}
                       value={watchedItems[index]?.product_id || ''}
-                      onValueChange={(value) => handleProductChange(index, value)}
+                      onValueChange={(value) =>
+                        handleProductChange(index, value)
+                      }
                       onCreateNew={(productName) => {
                         const tempId = handleCreateProduct(productName);
                         handleProductChange(index, tempId);
                       }}
-                      placeholder="Digite o nome do produto"
-                      className="mobile-input"
+                      placeholder='Digite o nome do produto'
+                      className='mobile-input'
                     />
                   </div>
 
