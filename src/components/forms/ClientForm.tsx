@@ -87,8 +87,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('email', clientData.email || '');
       setValue('address', clientData.address || '');
       setSelectedAffiliation(clientData.affiliation_id || 'none');
-      setLatitude(clientData.latitude || 0);
-      setLongitude(clientData.longitude || 0);
+      setLatitude((clientData as any).latitude || 0);
+      setLongitude((clientData as any).longitude || 0);
     }
   }, [clientData, setValue]);
 

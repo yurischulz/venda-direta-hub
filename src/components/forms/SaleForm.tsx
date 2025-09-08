@@ -16,6 +16,7 @@ import {
   useInvalidateRelated,
 } from '@/hooks/use-optimized-query';
 import { Loader2, Plus, Trash2, Package, Info } from 'lucide-react';
+import { LocationPicker } from '@/components/ui/location-picker';
 
 interface SaleItem {
   product_id: string;
@@ -27,6 +28,8 @@ interface SaleFormData {
   client_id: string;
   affiliation_id?: string;
   items: SaleItem[];
+  latitude?: number;
+  longitude?: number;
 }
 
 interface SaleFormProps {
@@ -54,6 +57,8 @@ export const SaleForm = ({
     preselectedClientId || ''
   );
   const [selectedAffiliation, setSelectedAffiliation] = useState<string>('');
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const [pendingClients, setPendingClients] = useState<PendingClient[]>([]);
   const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
   const [addedItems, setAddedItems] = useState<SaleItem[]>([]);
@@ -300,6 +305,8 @@ export const SaleForm = ({
           client_id: finalClientId,
           affiliation_id: selectedAffiliation || null,
           total: 0, // Will be calculated by trigger
+          latitude: latitude || null,
+          longitude: longitude || null,
           created_at: createdAtUtcMicros,
         })
         .select()
@@ -367,6 +374,8 @@ export const SaleForm = ({
       });
       setSelectedClient('');
       setSelectedAffiliation('');
+      setLatitude(0);
+      setLongitude(0);
       setPendingClients([]);
       setPendingProducts([]);
       setAddedItems([]);
@@ -548,6 +557,16 @@ export const SaleForm = ({
               </CardTitle>
             </CardHeader>
           </Card>
+
+          <LocationPicker
+            latitude={latitude}
+            longitude={longitude}
+            onLocationChange={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
+            label="Localização da Venda"
+          />
 
           <Button
             type='submit'

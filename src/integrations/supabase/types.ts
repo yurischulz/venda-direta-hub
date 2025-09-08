@@ -49,6 +49,8 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           phone: string | null
           updated_at: string
@@ -61,6 +63,8 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           phone?: string | null
           updated_at?: string
@@ -73,6 +77,8 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           phone?: string | null
           updated_at?: string
@@ -265,6 +271,8 @@ export type Database = {
           created_at: string
           due_date: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           notes: string | null
           payment_terms: string | null
           status: Database["public"]["Enums"]["sale_status"]
@@ -278,6 +286,8 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           payment_terms?: string | null
           status?: Database["public"]["Enums"]["sale_status"]
@@ -291,6 +301,8 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           payment_terms?: string | null
           status?: Database["public"]["Enums"]["sale_status"]

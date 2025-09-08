@@ -19,6 +19,7 @@ import AccountDetail from "./pages/AccountDetail";
 import Settings from "./pages/Settings";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { RequireAuth } from "@/components/auth/RequireAuth";
+import { GpsDemo } from "./pages/GpsDemo";
 import { queryClient } from "@/lib/queryClient";
 
 const App = () => (
@@ -115,6 +116,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <Settings />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/gps-demo"
+              element={
+                <RequireAuth>
+                  <GpsDemo />
                 </RequireAuth>
               }
             />
