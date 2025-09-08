@@ -235,7 +235,7 @@ const CustomerAccounts = () => {
           </Button>
 
           <Button
-            onClick={() => navigate('/affiliations?from=customer-accounts')}
+            onClick={() => navigate('/affiliations/new?from=customer-accounts')}
             className='h-12 mobile-tap'
             variant='outline'
           >

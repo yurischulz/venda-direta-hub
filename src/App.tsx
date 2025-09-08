@@ -9,6 +9,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Affiliations from "./pages/Affiliations";
+import AffiliationNew from "./pages/AffiliationNew";
+import AffiliationEdit from "./pages/AffiliationEdit";
 import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Payments from "./pages/Payments";
@@ -49,6 +51,22 @@ const App = () => (
               element={
                 <RequireAuth>
                   <Affiliations />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/affiliations/new"
+              element={
+                <RequireAuth>
+                  <AffiliationNew />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/affiliations/:affiliationId"
+              element={
+                <RequireAuth>
+                  <AffiliationEdit />
                 </RequireAuth>
               }
             />
