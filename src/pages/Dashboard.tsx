@@ -218,7 +218,7 @@ const Dashboard = () => {
           <div className='grid grid-cols-2 gap-4'>
             <Card
               className='card-hover animate-slide-up'
-              style={{ animationDelay: '0.2s' }}
+              style={{ animationDelay: '0.1s' }}
             >
               <Link to='/customer-accounts' className='block p-4'>
                 <div className='text-center space-y-3'>
@@ -237,7 +237,7 @@ const Dashboard = () => {
 
             <Card
               className='card-hover animate-slide-up'
-              style={{ animationDelay: '0.1s' }}
+              style={{ animationDelay: '0.2s' }}
             >
               <Link to='/products' className='block p-4'>
                 <div className='text-center space-y-3'>
@@ -247,6 +247,23 @@ const Dashboard = () => {
                   <div>
                     <h3 className='font-medium'>Produtos</h3>
                     <p className='text-xs text-muted-foreground'>Catálogo</p>
+                  </div>
+                </div>
+              </Link>
+            </Card>
+
+            <Card
+              className='card-hover animate-slide-up'
+              style={{ animationDelay: '0.3s' }}
+            >
+              <Link to='/affiliations' className='block p-4'>
+                <div className='text-center space-y-3'>
+                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
+                    <Network className='h-6 w-6 text-primary' />
+                  </div>
+                  <div>
+                    <h3 className='font-medium'>Afiliações</h3>
+                    <p className='text-xs text-muted-foreground'>Gerenciar</p>
                   </div>
                 </div>
               </Link>
@@ -271,7 +288,7 @@ const Dashboard = () => {
 
             <Card
               className='card-hover animate-slide-up'
-              style={{ animationDelay: '0.3s' }}
+              style={{ animationDelay: '0.5s' }}
             >
               <Link to='/payments' className='block p-4'>
                 <div className='text-center space-y-3'>
