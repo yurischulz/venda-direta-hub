@@ -17,6 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { LocationPicker } from '@/components/ui/location-picker';
 
 interface ClientFormData {
   name: string;
@@ -25,6 +26,8 @@ interface ClientFormData {
   email: string;
   address: string;
   affiliation_id?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface ClientFormProps {
@@ -35,6 +38,8 @@ interface ClientFormProps {
 export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
   const [selectedAffiliation, setSelectedAffiliation] =
     useState<string>('none');
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, setValue, control } =
     useForm<ClientFormData>();
@@ -82,6 +87,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('email', clientData.email || '');
       setValue('address', clientData.address || '');
       setSelectedAffiliation(clientData.affiliation_id || 'none');
+      setLatitude(clientData.latitude || 0);
+      setLongitude(clientData.longitude || 0);
     }
   }, [clientData, setValue]);
 
@@ -97,6 +104,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
         user_id: user.id, // Still needed since no trigger sets this
         affiliation_id:
           selectedAffiliation === 'none' ? null : selectedAffiliation || null,
+        latitude: latitude || null,
+        longitude: longitude || null,
       };
 
       if (clientId) {
@@ -140,6 +149,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       if (!clientId) {
         reset();
         setSelectedAffiliation('none');
+        setLatitude(0);
+        setLongitude(0);
       }
       onSuccess?.();
     },
@@ -245,6 +256,16 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               </SelectContent>
             </Select>
           </div>
+
+          <LocationPicker
+            latitude={latitude}
+            longitude={longitude}
+            onLocationChange={(lat, lng) => {
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
+            label="Localização do Cliente"
+          />
 
           <Button
             type='submit'
