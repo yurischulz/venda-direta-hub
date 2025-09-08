@@ -20,6 +20,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatPhoneForDisplay } from '@/lib/phone-utils';
 import { ChargeModal } from '@/components/forms/ChargeModal';
 import { useState } from 'react';
+import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input';
 
 interface CustomerAccount {
   id: string;
@@ -32,6 +33,11 @@ interface CustomerAccount {
   clients: {
     name: string;
     phone?: string;
+    affiliation_id?: string | null;
+    affiliations?: {
+      id: string;
+      name: string;
+    } | null;
   };
 }
 
@@ -43,6 +49,25 @@ const CustomerAccounts = () => {
     name: string;
     phone: string;
   } | null>(null);
+  const [selectedAffiliationId, setSelectedAffiliationId] = useState<string>('');
+
+  // Fetch affiliations for filter
+  const { data: affiliations = [] } = useQuery({
+    queryKey: ['affiliations'],
+    queryFn: async () => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('affiliations')
+        .select('id, name, phone')
+        .eq('user_id', userId)
+        .order('name');
+
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -65,7 +90,16 @@ const CustomerAccounts = () => {
 
       const { data: clientsData, error: clientsError } = await supabase
         .from('clients')
-        .select('id, name, phone')
+        .select(`
+          id, 
+          name, 
+          phone,
+          affiliation_id,
+          affiliations:affiliation_id (
+            id,
+            name
+          )
+        `)
         .in('id', clientIds);
 
       if (clientsError) throw clientsError;
@@ -75,7 +109,7 @@ const CustomerAccounts = () => {
         const client = clientsData.find((c) => c.id === account.client_id);
         return {
           ...account,
-          clients: client || { name: 'Cliente não encontrado', phone: null },
+          clients: client || { name: 'Cliente não encontrado', phone: null, affiliation_id: null, affiliations: null },
         };
       });
 
@@ -130,12 +164,17 @@ const CustomerAccounts = () => {
     );
   };
 
+  // Filter accounts by affiliation
+  const filteredAccounts = selectedAffiliationId 
+    ? accounts.filter(account => account.clients.affiliation_id === selectedAffiliationId)
+    : accounts;
+
   // Estatísticas gerais
-  const totalAccounts = accounts.length;
-  const activeAccounts = accounts.filter(
+  const totalAccounts = filteredAccounts.length;
+  const activeAccounts = filteredAccounts.filter(
     (acc) => acc.last_transaction_at !== null
   ).length;
-  const totalPendingBalance = accounts.reduce(
+  const totalPendingBalance = filteredAccounts.reduce(
     (sum, acc) => (acc.current_balance > 0 ? sum + acc.current_balance : sum),
     0
   );
@@ -205,11 +244,25 @@ const CustomerAccounts = () => {
           </Button>
         </div>
 
+        {/* Filtro por Afiliação */}
+        <div className='space-y-2'>
+          <label className='text-sm font-medium text-muted-foreground'>
+            Filtrar por Afiliação
+          </label>
+          <AffiliationSearchInput
+            affiliations={affiliations}
+            value={selectedAffiliationId}
+            onValueChange={setSelectedAffiliationId}
+            placeholder="Todas as afiliações"
+            className="w-full"
+          />
+        </div>
+
         {/* Lista de Fichas */}
         <div className='space-y-3'>
           {isLoading ? (
             [...Array(5)].map((_, i) => <CustomerAccountSkeleton key={i} />)
-          ) : accounts.length === 0 ? (
+          ) : filteredAccounts.length === 0 ? (
             <Card>
               <CardContent className='p-8 text-center'>
                 <FileText className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
@@ -227,7 +280,7 @@ const CustomerAccounts = () => {
               </CardContent>
             </Card>
           ) : (
-            accounts.map((account) => {
+            filteredAccounts.map((account) => {
               const BalanceIcon = getBalanceIcon(account.current_balance);
 
               return (
