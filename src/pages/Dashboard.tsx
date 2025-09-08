@@ -226,8 +226,10 @@ const Dashboard = () => {
                     <Users className='h-6 w-6 text-primary' />
                   </div>
                   <div>
-                    <h3 className='font-medium'>Clientes</h3>
-                    <p className='text-xs text-muted-foreground'>Crediário</p>
+                    <h3 className='font-medium'>Crediário</h3>
+                    <p className='text-xs text-muted-foreground'>
+                      Controlar contas de clientes
+                    </p>
                   </div>
                 </div>
               </Link>
