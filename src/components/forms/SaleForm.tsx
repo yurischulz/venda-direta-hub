@@ -60,7 +60,7 @@ export const SaleForm = ({
   const [currentProduct, setCurrentProduct] = useState<string>('');
   const [currentQuantity, setCurrentQuantity] = useState<number>(1);
   const [currentPrice, setCurrentPrice] = useState<number>(0);
-  
+
   const { invalidateSalesData } = useInvalidateRelated();
   const { control, handleSubmit, reset } = useForm<SaleFormData>({
     defaultValues: {
@@ -181,13 +181,13 @@ export const SaleForm = ({
       unit_price: currentPrice,
     };
 
-    setAddedItems(prev => [...prev, newItem]);
-    
+    setAddedItems((prev) => [...prev, newItem]);
+
     // Clear current product form
     setCurrentProduct('');
     setCurrentQuantity(1);
     setCurrentPrice(0);
-    
+
     toast({
       title: 'Produto adicionado',
       description: 'O produto foi adicionado à venda.',
@@ -196,7 +196,7 @@ export const SaleForm = ({
 
   // Remove product from list
   const handleRemoveItem = (index: number) => {
-    setAddedItems(prev => prev.filter((_, i) => i !== index));
+    setAddedItems((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Get all clients including pending ones
@@ -222,7 +222,7 @@ export const SaleForm = ({
 
   // Get product name for display
   const getProductName = (productId: string) => {
-    const product = allProducts.find(p => p.id === productId);
+    const product = allProducts.find((p) => p.id === productId);
     return product?.name || 'Produto não encontrado';
   };
 
@@ -420,8 +420,8 @@ export const SaleForm = ({
           {/* Product Form */}
           <div className='space-y-4'>
             <Label>Adicionar Produto *</Label>
-            
-            <Card className='p-4'>
+
+            <Card className='p-4 overflow-visible'>
               <div className='space-y-3'>
                 <div className='space-y-2'>
                   <Label>Produto</Label>
@@ -450,7 +450,9 @@ export const SaleForm = ({
                       type='number'
                       min='1'
                       value={currentQuantity}
-                      onChange={(e) => setCurrentQuantity(Number(e.target.value))}
+                      onChange={(e) =>
+                        setCurrentQuantity(Number(e.target.value))
+                      }
                       className='mobile-input'
                     />
                   </div>
@@ -492,18 +494,22 @@ export const SaleForm = ({
           {addedItems.length > 0 && (
             <div className='space-y-4'>
               <Label>Produtos Adicionados ({addedItems.length})</Label>
-              
+
               <div className='space-y-3'>
                 {addedItems.map((item, index) => (
                   <Card key={index} className='p-4'>
                     <div className='flex items-start justify-between'>
                       <div className='flex-1'>
-                        <h4 className='font-medium'>{getProductName(item.product_id)}</h4>
+                        <h4 className='font-medium'>
+                          {getProductName(item.product_id)}
+                        </h4>
                         <div className='text-sm text-muted-foreground mt-1'>
-                          Quantidade: {item.quantity} | Preço: {formatCurrency(item.unit_price)}
+                          Quantidade: {item.quantity} | Preço:{' '}
+                          {formatCurrency(item.unit_price)}
                         </div>
                         <div className='font-medium mt-1'>
-                          Subtotal: {formatCurrency(item.quantity * item.unit_price)}
+                          Subtotal:{' '}
+                          {formatCurrency(item.quantity * item.unit_price)}
                         </div>
                       </div>
                       <Button
@@ -545,7 +551,9 @@ export const SaleForm = ({
 
           <Button
             type='submit'
-            disabled={mutation.isPending || !selectedClient || addedItems.length === 0}
+            disabled={
+              mutation.isPending || !selectedClient || addedItems.length === 0
+            }
             className='mobile-button w-full mobile-tap'
           >
             {mutation.isPending && (

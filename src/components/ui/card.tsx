@@ -11,7 +11,7 @@ const Card = React.forwardRef<
     className={cn(
       `
       group relative overflow-hidden rounded-2xl border
-      bg-white/80 supports-[backdrop-filter]:bg-white/60 backdrop-blur
+      bg-white supports-[backdrop-filter]:bg-white/90 backdrop-blur
       shadow-sm transition-shadow hover:shadow-md
       animate-in fade-in-50 zoom-in-50
     `,
