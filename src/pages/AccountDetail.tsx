@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/mobile-tabs';
 import { SaleForm } from '@/components/forms/SaleForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
+import { ClientForm } from '@/components/forms/ClientForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -258,6 +259,7 @@ const AccountDetail = () => {
         <MobileTabs value={activeTab} onValueChange={setActiveTab}>
           <MobileTabsList>
             <MobileTabsTrigger value='overview'>Resumo</MobileTabsTrigger>
+            <MobileTabsTrigger value='edit-client'>Editar Cliente</MobileTabsTrigger>
             <MobileTabsTrigger value='new-sale'>Nova Venda</MobileTabsTrigger>
             <MobileTabsTrigger value='payment'>Recebimento</MobileTabsTrigger>
           </MobileTabsList>
@@ -322,7 +324,17 @@ const AccountDetail = () => {
               {/* Informações do Cliente */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Informações do Cliente</CardTitle>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Informações do Cliente</span>
+                    <Button
+                      variant='ghost'
+                      size='sm'
+                      onClick={() => setActiveTab('edit-client')}
+                      className='mobile-tap'
+                    >
+                      <Edit className='h-4 w-4' />
+                    </Button>
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className='space-y-2'>
                   <div className='flex items-center space-x-2'>
@@ -441,6 +453,15 @@ const AccountDetail = () => {
                   )}
                 </CardContent>
               </Card>
+            </div>
+          </MobileTabsContent>
+
+          <MobileTabsContent value='edit-client'>
+            <div className='mt-4'>
+              <ClientForm
+                clientId={clientId}
+                onSuccess={handleFormSuccess}
+              />
             </div>
           </MobileTabsContent>
 
