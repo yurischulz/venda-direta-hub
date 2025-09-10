@@ -16,8 +16,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
-import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
+import { Loader2, MapPin } from 'lucide-react';
 
 interface ClientFormData {
   name: string;
@@ -134,6 +133,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       // Preencher campos automaticamente
       const fullAddress = `${data.logradouro}, ${data.bairro}, ${data.localidade}, ${data.uf}`;
       setValue('address', fullAddress);
+      console.log('Setting address:', fullAddress); // Debug log
       
       // Buscar coordenadas no Nominatim
       const searchQuery = `${data.logradouro}, ${data.bairro}, ${data.localidade}, ${data.uf}, Brasil`;
@@ -319,14 +319,17 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             <div className='text-xs text-muted-foreground mb-2'>
               🏠 Digite seu CEP e encontraremos o endereço automaticamente
             </div>
-            <Input
-              id='cep'
-              {...register('cep')}
-              onChange={handleCepChange}
-              className='mobile-input'
-              placeholder='00000-000'
-              maxLength={9}
-            />
+            <div className="relative">
+              <Input
+                id='cep'
+                {...register('cep')}
+                onChange={handleCepChange}
+                className='mobile-input pr-10'
+                placeholder='00000-000'
+                maxLength={9}
+              />
+              <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
             {isLoadingCep && (
               <div className='text-xs text-primary flex items-center'>
                 <Loader2 className='h-3 w-3 animate-spin mr-1' />
@@ -335,15 +338,16 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             )}
           </div>
 
-          <AddressAutocomplete
-            value={clientData?.address || ''}
-            onAddressSelect={(address, lat, lng) => {
-              setValue('address', address);
-              setLatitude(lat);
-              setLongitude(lng);
-            }}
-            placeholder='Digite o endereço para buscar...'
-          />
+          <div className='space-y-2'>
+            <Label htmlFor='address'>Endereço</Label>
+            <Input
+              id='address'
+              {...register('address')}
+              className='mobile-input bg-muted/50'
+              placeholder='Será preenchido automaticamente pelo CEP'
+              readOnly
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className='space-y-2'>
