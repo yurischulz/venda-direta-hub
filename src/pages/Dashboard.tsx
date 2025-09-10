@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,10 +20,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { StatCardSkeleton } from '@/components/ui/data-skeleton';
-import { useGeolocation } from '@/hooks/useGeolocation';
-import { findNearbyAffiliations } from '@/utils/geolocation';
-import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
-import { toast } from '@/hooks/use-toast';
 
 import { SaleForm } from '@/components/forms/SaleForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
@@ -56,14 +52,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [isSaleDialogOpen, setIsSaleDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
-  const [isProximityModalOpen, setIsProximityModalOpen] = useState(false);
-  const [nearbyAffiliations, setNearbyAffiliations] = useState<Array<{
-    id: string;
-    name: string;
-    distance: number;
-  }>>([]);
-
-  const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
 
   const {
     data: stats,
@@ -111,44 +99,9 @@ const Dashboard = () => {
     refetch();
   };
 
-  const handleCustomerAccountsClick = async (e: React.MouseEvent) => {
+  const handleCustomerAccountsClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    
-    if (affiliations.length === 0) {
-      // Se não há afiliações com coordenadas, vai direto
-      navigate('/customer-accounts');
-      return;
-    }
-
-    try {
-      const position = await getCurrentPosition();
-      
-      if (!position) {
-        // Se não conseguiu obter a localização, vai direto sem filtro
-        navigate('/customer-accounts');
-        return;
-      }
-      
-      const userLat = position.coords.latitude;
-      const userLon = position.coords.longitude;
-
-      const nearby = findNearbyAffiliations(userLat, userLon, affiliations);
-      
-      if (nearby.length > 0) {
-        setNearbyAffiliations(nearby);
-        setIsProximityModalOpen(true);
-      } else {
-        navigate('/customer-accounts');
-      }
-    } catch (error) {
-      console.error('Erro ao obter localização:', error);
-      toast({
-        title: 'Localização não disponível',
-        description: 'Não foi possível obter sua localização. Continuando sem verificar proximidade.',
-        variant: 'destructive',
-      });
-      navigate('/customer-accounts');
-    }
+    navigate('/customer-accounts');
   };
 
   if (isLoading) {
@@ -379,14 +332,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Affiliation Proximity Modal */}
-        <AffiliationProximityModal
-          open={isProximityModalOpen}
-          onOpenChange={setIsProximityModalOpen}
-          nearbyAffiliations={nearbyAffiliations}
-          allAffiliations={affiliations || []}
-        />
 
       {/* Sale Dialog */}
       <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>

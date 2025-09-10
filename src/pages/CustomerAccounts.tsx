@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CustomerAccountSkeleton } from '@/components/ui/data-skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   User,
   Plus,
@@ -21,6 +22,9 @@ import { formatPhoneForDisplay } from '@/lib/phone-utils';
 import { ChargeModal } from '@/components/forms/ChargeModal';
 import { useState, useMemo, useEffect } from 'react';
 import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { findNearbyAffiliations } from '@/utils/geolocation';
+import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
 
 interface CustomerAccount {
   id: string;
@@ -50,6 +54,16 @@ const CustomerAccounts = () => {
     phone: string;
   } | null>(null);
   const [selectedAffiliationId, setSelectedAffiliationId] = useState<string>('');
+  const [isProximityModalOpen, setIsProximityModalOpen] = useState(false);
+  const [nearbyAffiliations, setNearbyAffiliations] = useState<Array<{
+    id: string;
+    name: string;
+    distance: number;
+  }>>([]);
+  const [isCheckingLocation, setIsCheckingLocation] = useState(false);
+
+  const { getCurrentPosition } = useGeolocation();
+  
   const affiliationFilter = searchParams.get('affiliation');
 
   // Set selected affiliation when URL param changes
@@ -76,6 +90,64 @@ const CustomerAccounts = () => {
       return data;
     },
   });
+
+  // Fetch affiliations with coordinates for proximity check
+  const { data: affiliationsWithCoordinates = [] } = useQuery({
+    queryKey: ['affiliations-with-coordinates'],
+    queryFn: async () => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('affiliations')
+        .select('id, name, latitude, longitude')
+        .eq('user_id', userId)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Check for nearby affiliations on component mount
+  useEffect(() => {
+    const checkProximity = async () => {
+      if (!affiliationsWithCoordinates || affiliationsWithCoordinates.length === 0) return;
+      if (affiliationFilter) return; // Skip if already has filter from URL
+
+      setIsCheckingLocation(true);
+      
+      try {
+        const position = await getCurrentPosition();
+        
+        let nearby: Array<{ id: string; name: string; distance: number }> = [];
+        
+        if (position) {
+          const userLat = position.coords.latitude;
+          const userLon = position.coords.longitude;
+          nearby = findNearbyAffiliations(userLat, userLon, affiliationsWithCoordinates);
+        }
+        
+        // Sempre mostra a modal se há afiliações
+        setNearbyAffiliations(nearby);
+        setIsProximityModalOpen(true);
+        
+      } catch (error) {
+        console.error('Erro ao obter localização:', error);
+        // Mesmo com erro, mostra a modal
+        setNearbyAffiliations([]);
+        setIsProximityModalOpen(true);
+      } finally {
+        setIsCheckingLocation(false);
+      }
+    };
+
+    // Only check proximity if we haven't checked yet and affiliations are loaded
+    if (affiliationsWithCoordinates.length > 0 && !isProximityModalOpen && !affiliationFilter) {
+      checkProximity();
+    }
+  }, [affiliationsWithCoordinates, getCurrentPosition, isProximityModalOpen, affiliationFilter]);
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -271,7 +343,28 @@ const CustomerAccounts = () => {
 
         {/* Lista de Fichas */}
         <div className='space-y-3'>
-          {isLoading ? (
+          {isCheckingLocation ? (
+            <div className="space-y-4">
+              <div className="text-center p-4">
+                <p className="text-muted-foreground mb-4">Verificando localização...</p>
+              </div>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i}>
+                  <CardHeader className="pb-3">
+                    <Skeleton className="h-5 w-24" />
+                    <Skeleton className="h-4 w-32" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-6 w-20 mb-2" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : isLoading ? (
             [...Array(5)].map((_, i) => <CustomerAccountSkeleton key={i} />)
           ) : filteredAccounts.length === 0 ? (
             <Card>
@@ -399,9 +492,16 @@ const CustomerAccounts = () => {
             clientPhone={selectedClient.phone}
           />
         )}
-      </div>
-    </MobileLayout>
-  );
-};
+        </div>
+
+        <AffiliationProximityModal
+          open={isProximityModalOpen}
+          onOpenChange={setIsProximityModalOpen}
+          nearbyAffiliations={nearbyAffiliations}
+          allAffiliations={affiliations || []}
+        />
+      </MobileLayout>
+    );
+  };
 
 export default CustomerAccounts;

@@ -30,7 +30,16 @@ export const AffiliationProximityModal = ({
   nearbyAffiliations,
   allAffiliations
 }: AffiliationProximityModalProps) => {
-  const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null);
+  // Pré-seleciona o primeiro registro próximo ou o primeiro da lista
+  const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(() => {
+    if (nearbyAffiliations.length > 0) {
+      return nearbyAffiliations[0].id;
+    }
+    if (allAffiliations.length > 0) {
+      return allAffiliations[0].id;
+    }
+    return null;
+  });
   const navigate = useNavigate();
 
   const formatDistance = (distance: number): string => {
