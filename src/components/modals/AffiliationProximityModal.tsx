@@ -70,6 +70,12 @@ export const AffiliationProximityModal = ({
     onOpenChange(false);
   };
 
+  const handleRemoveLocationFilter = () => {
+    onInteraction?.();
+    navigate('/customer-accounts');
+    onOpenChange(false);
+  };
+
   // Função para lidar com o fechamento da modal (ESC ou clique fora)
   const handleModalClose = (open: boolean) => {
     if (!open) {
@@ -133,20 +139,57 @@ export const AffiliationProximityModal = ({
         </div>
 
         <DialogFooter className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleContinueWithoutFilter}
-            className="flex-1"
-          >
-            Continuar sem filtro
-          </Button>
-          <Button
-            onClick={handleContinueWithFilter}
-            className="flex-1"
-            disabled={!selectedAffiliation}
-          >
-            Filtrar por localização
-          </Button>
+          {(() => {
+            const selectedLocation = nearbyAffiliations.find(item => item.id === selectedAffiliation);
+            const isClientSelected = selectedLocation?.type === 'client';
+            
+            if (isClientSelected) {
+              return (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={handleContinueWithoutFilter}
+                    className="flex-1"
+                  >
+                    Continuar sem filtro
+                  </Button>
+                  <Button
+                    onClick={handleContinueWithFilter}
+                    className="flex-1"
+                    disabled={!selectedAffiliation}
+                  >
+                    Filtrar por cliente
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleRemoveLocationFilter}
+                    className="flex-1"
+                  >
+                    Remover filtro
+                  </Button>
+                </>
+              );
+            }
+            
+            return (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleContinueWithoutFilter}
+                  className="flex-1"
+                >
+                  Continuar sem filtro
+                </Button>
+                <Button
+                  onClick={handleContinueWithFilter}
+                  className="flex-1"
+                  disabled={!selectedAffiliation}
+                >
+                  Filtrar por afiliação
+                </Button>
+              </>
+            );
+          })()}
         </DialogFooter>
       </DialogContent>
     </Dialog>
