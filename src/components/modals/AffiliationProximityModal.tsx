@@ -15,6 +15,7 @@ interface NearbyAffiliation {
   id: string;
   name: string;
   distance: number;
+  type: 'affiliation' | 'client';
 }
 
 interface AffiliationProximityModalProps {
@@ -53,7 +54,12 @@ export const AffiliationProximityModal = ({
   const handleContinueWithFilter = () => {
     onInteraction?.();
     if (selectedAffiliation) {
-      navigate(`/customer-accounts?affiliation=${selectedAffiliation}`);
+      const selectedLocation = nearbyAffiliations.find(item => item.id === selectedAffiliation);
+      if (selectedLocation?.type === 'affiliation') {
+        navigate(`/customer-accounts?affiliation=${selectedAffiliation}`);
+      } else {
+        navigate(`/customer-accounts?client=${selectedAffiliation}`);
+      }
     }
     onOpenChange(false);
   };
@@ -80,18 +86,18 @@ export const AffiliationProximityModal = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
-            Você está próximo de uma afiliação
+            Localização próxima detectada
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Detectamos que você está próximo a {nearbyAffiliations.length === 1 ? 'uma afiliação' : 'afiliações'} cadastrada{nearbyAffiliations.length === 1 ? '' : 's'}. 
-            Deseja filtrar o crediário por uma afiliação específica?
+            Detectamos que você está próximo a localizações cadastradas. 
+            Deseja filtrar o crediário por uma localização específica?
           </p>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-primary">Afiliações próximas:</label>
+            <label className="text-sm font-medium text-primary">Localizações próximas:</label>
             {nearbyAffiliations.map((affiliation) => (
               <div
                 key={affiliation.id}
@@ -105,7 +111,12 @@ export const AffiliationProximityModal = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">{affiliation.name}</span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{affiliation.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {affiliation.type === 'affiliation' ? 'Afiliação' : 'Cliente'}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs text-primary">
@@ -134,7 +145,7 @@ export const AffiliationProximityModal = ({
             className="flex-1"
             disabled={!selectedAffiliation}
           >
-            Filtrar por afiliação
+            Filtrar por localização
           </Button>
         </DialogFooter>
       </DialogContent>

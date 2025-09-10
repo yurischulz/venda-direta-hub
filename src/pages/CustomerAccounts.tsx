@@ -59,6 +59,7 @@ const CustomerAccounts = () => {
     id: string;
     name: string;
     distance: number;
+    type: 'affiliation' | 'client';
   }>>([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
@@ -66,6 +67,7 @@ const CustomerAccounts = () => {
   const { getCurrentPosition } = useGeolocation();
   
   const affiliationFilter = searchParams.get('affiliation');
+  const clientFilter = searchParams.get('client');
 
   // Set selected affiliation when URL param changes
   useEffect(() => {
@@ -111,26 +113,62 @@ const CustomerAccounts = () => {
     },
   });
 
-  // Check for nearby affiliations on component mount
+  // Fetch clients with coordinates for proximity check
+  const { data: clientsWithCoordinates = [] } = useQuery({
+    queryKey: ['clients-with-coordinates'],
+    queryFn: async () => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, name, latitude, longitude')
+        .eq('user_id', userId)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Check for nearby affiliations and clients on component mount
   useEffect(() => {
     const checkProximity = async () => {
-      if (!affiliationsWithCoordinates || affiliationsWithCoordinates.length === 0) return;
-      if (affiliationFilter) return; // Skip if already has filter from URL
+      const hasAffiliations = affiliationsWithCoordinates && affiliationsWithCoordinates.length > 0;
+      const hasClients = clientsWithCoordinates && clientsWithCoordinates.length > 0;
+      
+      if (!hasAffiliations && !hasClients) return;
+      if (affiliationFilter || clientFilter) return; // Skip if already has filter from URL
 
       setIsCheckingLocation(true);
       
       try {
         const position = await getCurrentPosition();
         
-        let nearby: Array<{ id: string; name: string; distance: number }> = [];
+        let nearby: Array<{ id: string; name: string; distance: number; type: 'affiliation' | 'client' }> = [];
         
         if (position) {
           const userLat = position.coords.latitude;
           const userLon = position.coords.longitude;
-          nearby = findNearbyAffiliations(userLat, userLon, affiliationsWithCoordinates);
+          
+          // Check nearby affiliations
+          if (hasAffiliations) {
+            const nearbyAffiliations = findNearbyAffiliations(userLat, userLon, affiliationsWithCoordinates);
+            nearby.push(...nearbyAffiliations.map(item => ({ ...item, type: 'affiliation' as const })));
+          }
+          
+          // Check nearby clients
+          if (hasClients) {
+            const nearbyClients = findNearbyAffiliations(userLat, userLon, clientsWithCoordinates);
+            nearby.push(...nearbyClients.map(item => ({ ...item, type: 'client' as const })));
+          }
+          
+          // Sort all nearby locations by distance
+          nearby.sort((a, b) => a.distance - b.distance);
         }
         
-        // Sempre mostra a modal apenas se há afiliações próximas
+        // Show modal only if there are nearby locations
         if (nearby.length > 0) {
           setNearbyAffiliations(nearby);
           setIsProximityModalOpen(true);
@@ -145,10 +183,16 @@ const CustomerAccounts = () => {
     };
 
     // Only check proximity if we haven't checked yet and user hasn't interacted with modal yet
-    if (affiliationsWithCoordinates.length > 0 && !isProximityModalOpen && !affiliationFilter && !hasInteractedWithModal) {
+    const canCheckProximity = (affiliationsWithCoordinates.length > 0 || clientsWithCoordinates.length > 0) && 
+                             !isProximityModalOpen && 
+                             !affiliationFilter && 
+                             !clientFilter &&
+                             !hasInteractedWithModal;
+    
+    if (canCheckProximity) {
       checkProximity();
     }
-  }, [affiliationsWithCoordinates, getCurrentPosition, isProximityModalOpen, affiliationFilter, hasInteractedWithModal]);
+  }, [affiliationsWithCoordinates, clientsWithCoordinates, getCurrentPosition, isProximityModalOpen, affiliationFilter, clientFilter, hasInteractedWithModal]);
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -245,13 +289,21 @@ const CustomerAccounts = () => {
     );
   };
 
-  // Filter accounts by affiliation - use URL param or selected affiliation
+  // Filter accounts by affiliation or client - use URL param or selected affiliation
   const filteredAccounts = useMemo(() => {
     const filterByAffiliation = affiliationFilter || selectedAffiliationId;
-    return filterByAffiliation 
-      ? accounts.filter(account => account.clients.affiliation_id === filterByAffiliation)
-      : accounts;
-  }, [accounts, affiliationFilter, selectedAffiliationId]);
+    const filterByClient = clientFilter;
+    
+    if (filterByAffiliation) {
+      return accounts.filter(account => account.clients.affiliation_id === filterByAffiliation);
+    }
+    
+    if (filterByClient) {
+      return accounts.filter(account => account.client_id === filterByClient);
+    }
+    
+    return accounts;
+  }, [accounts, affiliationFilter, selectedAffiliationId, clientFilter]);
 
   // Estatísticas gerais
   const totalAccounts = filteredAccounts.length;
