@@ -122,6 +122,13 @@ const Dashboard = () => {
 
     try {
       const position = await getCurrentPosition();
+      
+      if (!position) {
+        // Se não conseguiu obter a localização, vai direto sem filtro
+        navigate('/customer-accounts');
+        return;
+      }
+      
       const userLat = position.coords.latitude;
       const userLon = position.coords.longitude;
 
