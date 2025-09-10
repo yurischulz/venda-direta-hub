@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Users } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface NearbyAffiliation {
@@ -28,13 +28,17 @@ export const AffiliationProximityModal = ({
   onOpenChange,
   nearbyAffiliations
 }: AffiliationProximityModalProps) => {
-  // Pré-seleciona o primeiro registro próximo
-  const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(() => {
+  // Pré-seleciona o primeiro registro próximo (mais próximo)
+  const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null);
+  
+  // Atualiza a seleção quando nearbyAffiliations mudar
+  useEffect(() => {
     if (nearbyAffiliations.length > 0) {
-      return nearbyAffiliations[0].id;
+      setSelectedAffiliation(nearbyAffiliations[0].id);
+    } else {
+      setSelectedAffiliation(null);
     }
-    return null;
-  });
+  }, [nearbyAffiliations]);
   const navigate = useNavigate();
 
   const formatDistance = (distance: number): string => {
@@ -47,8 +51,6 @@ export const AffiliationProximityModal = ({
   const handleContinueWithFilter = () => {
     if (selectedAffiliation) {
       navigate(`/customer-accounts?affiliation=${selectedAffiliation}`);
-    } else {
-      navigate('/customer-accounts');
     }
     onOpenChange(false);
   };
@@ -84,54 +86,33 @@ export const AffiliationProximityModal = ({
           </p>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Opções de filtro:</label>
-            
-            <div 
-              className="p-3 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:bg-muted/50"
-              onClick={() => setSelectedAffiliation(null)}
-            >
-              <div className={`flex items-center justify-between ${
-                selectedAffiliation === null ? 'text-primary' : 'text-muted-foreground'
-              }`}>
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  <span className="text-sm font-medium">Todas as afiliações</span>
-                </div>
-                {selectedAffiliation === null && (
-                  <Badge variant="default" className="text-xs">Selecionado</Badge>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-primary">Afiliações próximas:</label>
-              {nearbyAffiliations.map((affiliation) => (
-                <div
-                  key={affiliation.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
-                    selectedAffiliation === affiliation.id 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border'
-                  }`}
-                  onClick={() => setSelectedAffiliation(affiliation.id)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">{affiliation.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs text-primary">
-                        {formatDistance(affiliation.distance)}
-                      </Badge>
-                      {selectedAffiliation === affiliation.id && (
-                        <Badge variant="default" className="text-xs">Selecionado</Badge>
-                      )}
-                    </div>
+            <label className="text-sm font-medium text-primary">Afiliações próximas:</label>
+            {nearbyAffiliations.map((affiliation) => (
+              <div
+                key={affiliation.id}
+                className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
+                  selectedAffiliation === affiliation.id 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border'
+                }`}
+                onClick={() => setSelectedAffiliation(affiliation.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">{affiliation.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs text-primary">
+                      {formatDistance(affiliation.distance)}
+                    </Badge>
+                    {selectedAffiliation === affiliation.id && (
+                      <Badge variant="default" className="text-xs">Selecionado</Badge>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -146,8 +127,9 @@ export const AffiliationProximityModal = ({
           <Button
             onClick={handleContinueWithFilter}
             className="flex-1"
+            disabled={!selectedAffiliation}
           >
-            {selectedAffiliation ? 'Filtrar por afiliação' : 'Ver todos'}
+            Filtrar por afiliação
           </Button>
         </DialogFooter>
       </DialogContent>
