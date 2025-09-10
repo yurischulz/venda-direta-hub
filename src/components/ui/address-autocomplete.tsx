@@ -40,12 +40,30 @@ export const AddressAutocomplete = ({
     try {
       // Usando Nominatim (OpenStreetMap) como alternativa gratuita
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(query)}&countrycodes=br`
+        `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=10&q=${encodeURIComponent(query)}&countrycodes=br`
       );
       
       if (response.ok) {
         const data = await response.json();
-        setSuggestions(data || []);
+        
+        // Remove duplicates and format results
+        const uniqueResults = data.reduce((acc: any[], current: any) => {
+          const isDuplicate = acc.some(item => 
+            item.display_name === current.display_name ||
+            (item.lat === current.lat && item.lon === current.lon)
+          );
+          
+          if (!isDuplicate) {
+            acc.push({
+              ...current,
+              formatted_address: formatAddress(current)
+            });
+          }
+          
+          return acc;
+        }, []);
+        
+        setSuggestions(uniqueResults.slice(0, 5));
         setShowSuggestions(true);
       }
     } catch (error) {
@@ -54,6 +72,38 @@ export const AddressAutocomplete = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatAddress = (suggestion: any) => {
+    const address = suggestion.address || {};
+    const parts = [];
+    
+    // Logradouro
+    if (address.road || address.pedestrian || address.highway) {
+      parts.push(address.road || address.pedestrian || address.highway);
+    }
+    
+    // Bairro
+    if (address.suburb || address.neighbourhood || address.city_district) {
+      parts.push(address.suburb || address.neighbourhood || address.city_district);
+    }
+    
+    // Cidade
+    if (address.city || address.town || address.village || address.municipality) {
+      parts.push(address.city || address.town || address.village || address.municipality);
+    }
+    
+    // Estado
+    if (address.state) {
+      parts.push(address.state);
+    }
+    
+    // CEP
+    if (address.postcode) {
+      parts.push(address.postcode);
+    }
+    
+    return parts.filter(Boolean).join(', ');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,7 +153,7 @@ export const AddressAutocomplete = ({
               className="p-3 cursor-pointer hover:bg-accent hover:text-accent-foreground border-b last:border-b-0"
               onClick={() => handleSuggestionClick(suggestion)}
             >
-              <div className="text-sm font-medium">{suggestion.display_name}</div>
+              <div className="text-sm font-medium">{suggestion.formatted_address}</div>
             </div>
           ))}
         </div>

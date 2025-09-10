@@ -44,6 +44,8 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          address_complement: string | null
+          address_number: string | null
           affiliation_id: string | null
           cpf: string | null
           created_at: string
@@ -58,6 +60,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           affiliation_id?: string | null
           cpf?: string | null
           created_at?: string
@@ -72,6 +76,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           affiliation_id?: string | null
           cpf?: string | null
           created_at?: string

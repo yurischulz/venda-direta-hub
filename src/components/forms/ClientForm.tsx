@@ -25,6 +25,8 @@ interface ClientFormData {
   cpf: string;
   email: string;
   address: string;
+  address_number: string;
+  address_complement: string;
   affiliation_id?: string;
   latitude?: number;
   longitude?: number;
@@ -86,6 +88,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('cpf', clientData.cpf || '');
       setValue('email', clientData.email || '');
       setValue('address', clientData.address || '');
+      setValue('address_number', (clientData as any).address_number || '');
+      setValue('address_complement', (clientData as any).address_complement || '');
       setSelectedAffiliation(clientData.affiliation_id || 'none');
       setLatitude((clientData as any).latitude || 0);
       setLongitude((clientData as any).longitude || 0);
@@ -236,6 +240,28 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             }}
             placeholder='Digite o endereço para buscar...'
           />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className='space-y-2'>
+              <Label htmlFor='address_number'>Número</Label>
+              <Input
+                id='address_number'
+                {...register('address_number')}
+                className='mobile-input'
+                placeholder='123'
+              />
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='address_complement'>Complemento</Label>
+              <Input
+                id='address_complement'
+                {...register('address_complement')}
+                className='mobile-input'
+                placeholder='Apto 45, Bloco B'
+              />
+            </div>
+          </div>
 
           <div className='space-y-2'>
             <Label>Afiliação</Label>
