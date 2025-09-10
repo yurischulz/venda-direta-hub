@@ -44,6 +44,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
+  const [lastSearchedCep, setLastSearchedCep] = useState<string>('');
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, setValue, control } =
     useForm<ClientFormData>();
@@ -99,11 +100,21 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
     }
   }, [clientData, setValue]);
 
+  const formatCep = (value: string) => {
+    const cleanCep = value.replace(/\D/g, '');
+    if (cleanCep.length <= 5) {
+      return cleanCep;
+    }
+    return `${cleanCep.slice(0, 5)}-${cleanCep.slice(5, 8)}`;
+  };
+
   const searchAddressByCep = async (cep: string) => {
     const cleanCep = cep.replace(/\D/g, '');
     
     if (cleanCep.length !== 8) return;
     
+    // Verificar se já buscamos esse CEP recentemente para permitir nova busca
+    setLastSearchedCep(cleanCep);
     setIsLoadingCep(true);
     
     try {
@@ -114,7 +125,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       if (data.erro) {
         toast({
           title: 'CEP não encontrado',
-          description: 'Verifique o CEP digitado e tente novamente.',
+          description: 'Verifique se o CEP está correto e tente novamente.',
           variant: 'destructive',
         });
         return;
@@ -140,15 +151,15 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       }
       
       toast({
-        title: 'Endereço encontrado!',
-        description: 'Os campos foram preenchidos automaticamente.',
+        title: 'Endereço localizado!',
+        description: 'Preenchemos automaticamente as informações de endereço.',
       });
       
     } catch (error) {
       console.error('Erro ao buscar CEP:', error);
       toast({
-        title: 'Erro',
-        description: 'Não foi possível buscar o endereço. Tente novamente.',
+        title: 'Ops, algo deu errado',
+        description: 'Não conseguimos buscar o endereço. Verifique sua conexão e tente novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -158,7 +169,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
 
   const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setValue('cep', value);
+    const formattedCep = formatCep(value);
+    setValue('cep', formattedCep);
     
     // Auto-buscar quando o CEP estiver completo
     const cleanCep = value.replace(/\D/g, '');
@@ -305,7 +317,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
           <div className='space-y-2'>
             <Label htmlFor='cep'>CEP *</Label>
             <div className='text-xs text-muted-foreground mb-2'>
-              Digite o CEP para busca automática do endereço
+              🏠 Digite seu CEP e encontraremos o endereço automaticamente
             </div>
             <Input
               id='cep'
@@ -316,9 +328,9 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               maxLength={9}
             />
             {isLoadingCep && (
-              <div className='text-xs text-muted-foreground'>
-                <Loader2 className='inline h-3 w-3 animate-spin mr-1' />
-                Buscando endereço...
+              <div className='text-xs text-primary flex items-center'>
+                <Loader2 className='h-3 w-3 animate-spin mr-1' />
+                Localizando seu endereço...
               </div>
             )}
           </div>
