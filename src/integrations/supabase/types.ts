@@ -47,6 +47,7 @@ export type Database = {
           address_complement: string | null
           address_number: string | null
           affiliation_id: string | null
+          cep: string | null
           cpf: string | null
           created_at: string
           email: string | null
@@ -63,6 +64,7 @@ export type Database = {
           address_complement?: string | null
           address_number?: string | null
           affiliation_id?: string | null
+          cep?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
@@ -79,6 +81,7 @@ export type Database = {
           address_complement?: string | null
           address_number?: string | null
           affiliation_id?: string | null
+          cep?: string | null
           cpf?: string | null
           created_at?: string
           email?: string | null
