@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
-import { LocationPicker } from '@/components/ui/location-picker';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 
 interface ClientFormData {
   name: string;
@@ -227,15 +227,15 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             />
           </div>
 
-          <div className='space-y-2'>
-            <Label htmlFor='address'>Endereço</Label>
-            <Input
-              id='address'
-              {...register('address')}
-              className='mobile-input'
-              placeholder='Endereço completo'
-            />
-          </div>
+          <AddressAutocomplete
+            value={clientData?.address || ''}
+            onAddressSelect={(address, lat, lng) => {
+              setValue('address', address);
+              setLatitude(lat);
+              setLongitude(lng);
+            }}
+            placeholder='Digite o endereço para buscar...'
+          />
 
           <div className='space-y-2'>
             <Label>Afiliação</Label>
@@ -257,15 +257,6 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             </Select>
           </div>
 
-          <LocationPicker
-            latitude={latitude}
-            longitude={longitude}
-            onLocationChange={(lat, lng) => {
-              setLatitude(lat);
-              setLongitude(lng);
-            }}
-            label="Localização do Cliente"
-          />
 
           <Button
             type='submit'
