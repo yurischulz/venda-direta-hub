@@ -61,6 +61,7 @@ const CustomerAccounts = () => {
     distance: number;
   }>>([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
+  const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
 
   const { getCurrentPosition } = useGeolocation();
   
@@ -143,11 +144,11 @@ const CustomerAccounts = () => {
       }
     };
 
-    // Only check proximity if we haven't checked yet and affiliations are loaded
-    if (affiliationsWithCoordinates.length > 0 && !isProximityModalOpen && !affiliationFilter) {
+    // Only check proximity if we haven't checked yet and user hasn't interacted with modal yet
+    if (affiliationsWithCoordinates.length > 0 && !isProximityModalOpen && !affiliationFilter && !hasInteractedWithModal) {
       checkProximity();
     }
-  }, [affiliationsWithCoordinates, getCurrentPosition, isProximityModalOpen, affiliationFilter]);
+  }, [affiliationsWithCoordinates, getCurrentPosition, isProximityModalOpen, affiliationFilter, hasInteractedWithModal]);
 
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['customer-accounts'],
@@ -498,6 +499,7 @@ const CustomerAccounts = () => {
           open={isProximityModalOpen}
           onOpenChange={setIsProximityModalOpen}
           nearbyAffiliations={nearbyAffiliations}
+          onInteraction={() => setHasInteractedWithModal(true)}
         />
       </MobileLayout>
     );

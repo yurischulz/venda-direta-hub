@@ -21,12 +21,14 @@ interface AffiliationProximityModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   nearbyAffiliations: NearbyAffiliation[];
+  onInteraction?: () => void;
 }
 
 export const AffiliationProximityModal = ({
   open,
   onOpenChange,
-  nearbyAffiliations
+  nearbyAffiliations,
+  onInteraction
 }: AffiliationProximityModalProps) => {
   // Pré-seleciona o primeiro registro próximo (mais próximo)
   const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null);
@@ -49,6 +51,7 @@ export const AffiliationProximityModal = ({
   };
 
   const handleContinueWithFilter = () => {
+    onInteraction?.();
     if (selectedAffiliation) {
       navigate(`/customer-accounts?affiliation=${selectedAffiliation}`);
     }
@@ -56,6 +59,7 @@ export const AffiliationProximityModal = ({
   };
 
   const handleContinueWithoutFilter = () => {
+    onInteraction?.();
     navigate('/customer-accounts');
     onOpenChange(false);
   };
@@ -63,6 +67,7 @@ export const AffiliationProximityModal = ({
   // Função para lidar com o fechamento da modal (ESC ou clique fora)
   const handleModalClose = (open: boolean) => {
     if (!open) {
+      onInteraction?.();
       // Ao fechar a modal, continua sem filtro
       navigate('/customer-accounts');
     }
