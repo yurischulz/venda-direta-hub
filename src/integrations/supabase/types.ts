@@ -16,24 +16,42 @@ export type Database = {
     Tables: {
       affiliations: {
         Row: {
+          address: string | null
+          address_complement: string | null
+          address_number: string | null
+          cep: string | null
           created_at: string
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          cep?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
+          cep?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           phone?: string | null
           updated_at?: string
