@@ -24,6 +24,7 @@ interface ClientFormData {
   phone: string;
   cpf: string;
   email: string;
+  cep: string;
   address: string;
   address_number: string;
   address_complement: string;
@@ -42,6 +43,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
     useState<string>('none');
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
   const queryClient = useQueryClient();
   const { register, handleSubmit, reset, setValue, control } =
     useForm<ClientFormData>();
@@ -87,6 +89,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setValue('phone', clientData.phone || '');
       setValue('cpf', clientData.cpf || '');
       setValue('email', clientData.email || '');
+      setValue('cep', (clientData as any).cep || '');
       setValue('address', clientData.address || '');
       setValue('address_number', (clientData as any).address_number || '');
       setValue('address_complement', (clientData as any).address_complement || '');
@@ -95,6 +98,74 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
       setLongitude((clientData as any).longitude || 0);
     }
   }, [clientData, setValue]);
+
+  const searchAddressByCep = async (cep: string) => {
+    const cleanCep = cep.replace(/\D/g, '');
+    
+    if (cleanCep.length !== 8) return;
+    
+    setIsLoadingCep(true);
+    
+    try {
+      // Buscar CEP via ViaCEP
+      const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+      const data = await response.json();
+      
+      if (data.erro) {
+        toast({
+          title: 'CEP não encontrado',
+          description: 'Verifique o CEP digitado e tente novamente.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Preencher campos automaticamente
+      const fullAddress = `${data.logradouro}, ${data.bairro}, ${data.localidade}, ${data.uf}`;
+      setValue('address', fullAddress);
+      
+      // Buscar coordenadas no Nominatim
+      const searchQuery = `${data.logradouro}, ${data.bairro}, ${data.localidade}, ${data.uf}, Brasil`;
+      const nominatimResponse = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(searchQuery)}&countrycodes=br`
+      );
+      
+      const nominatimData = await nominatimResponse.json();
+      
+      if (nominatimData.length > 0) {
+        const lat = parseFloat(nominatimData[0].lat);
+        const lng = parseFloat(nominatimData[0].lon);
+        setLatitude(lat);
+        setLongitude(lng);
+      }
+      
+      toast({
+        title: 'Endereço encontrado!',
+        description: 'Os campos foram preenchidos automaticamente.',
+      });
+      
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível buscar o endereço. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoadingCep(false);
+    }
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setValue('cep', value);
+    
+    // Auto-buscar quando o CEP estiver completo
+    const cleanCep = value.replace(/\D/g, '');
+    if (cleanCep.length === 8) {
+      searchAddressByCep(value);
+    }
+  };
 
   const mutation = useMutation({
     mutationFn: async (data: ClientFormData) => {
@@ -229,6 +300,27 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               className='mobile-input'
               placeholder='cliente@email.com'
             />
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='cep'>CEP *</Label>
+            <div className='text-xs text-muted-foreground mb-2'>
+              Digite o CEP para busca automática do endereço
+            </div>
+            <Input
+              id='cep'
+              {...register('cep')}
+              onChange={handleCepChange}
+              className='mobile-input'
+              placeholder='00000-000'
+              maxLength={9}
+            />
+            {isLoadingCep && (
+              <div className='text-xs text-muted-foreground'>
+                <Loader2 className='inline h-3 w-3 animate-spin mr-1' />
+                Buscando endereço...
+              </div>
+            )}
           </div>
 
           <AddressAutocomplete
