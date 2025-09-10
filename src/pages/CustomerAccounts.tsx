@@ -19,7 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { formatPhoneForDisplay } from '@/lib/phone-utils';
 import { ChargeModal } from '@/components/forms/ChargeModal';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input';
 
 interface CustomerAccount {
@@ -50,6 +50,14 @@ const CustomerAccounts = () => {
     phone: string;
   } | null>(null);
   const [selectedAffiliationId, setSelectedAffiliationId] = useState<string>('');
+  const affiliationFilter = searchParams.get('affiliation');
+
+  // Set selected affiliation when URL param changes
+  useEffect(() => {
+    if (affiliationFilter) {
+      setSelectedAffiliationId(affiliationFilter);
+    }
+  }, [affiliationFilter]);
 
   // Fetch affiliations for filter
   const { data: affiliations = [] } = useQuery({
@@ -164,10 +172,13 @@ const CustomerAccounts = () => {
     );
   };
 
-  // Filter accounts by affiliation
-  const filteredAccounts = selectedAffiliationId 
-    ? accounts.filter(account => account.clients.affiliation_id === selectedAffiliationId)
-    : accounts;
+  // Filter accounts by affiliation - use URL param or selected affiliation
+  const filteredAccounts = useMemo(() => {
+    const filterByAffiliation = affiliationFilter || selectedAffiliationId;
+    return filterByAffiliation 
+      ? accounts.filter(account => account.clients.affiliation_id === filterByAffiliation)
+      : accounts;
+  }, [accounts, affiliationFilter, selectedAffiliationId]);
 
   // Estatísticas gerais
   const totalAccounts = filteredAccounts.length;

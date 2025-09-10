@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MobileLayout } from '@/components/layout/MobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Users,
   ShoppingCart,
@@ -20,6 +20,10 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { StatCardSkeleton } from '@/components/ui/data-skeleton';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { findNearbyAffiliations } from '@/utils/geolocation';
+import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
+import { toast } from '@/hooks/use-toast';
 
 import { SaleForm } from '@/components/forms/SaleForm';
 import { PaymentForm } from '@/components/forms/PaymentForm';
@@ -49,8 +53,17 @@ const fetchDashboardStats = async () => {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isSaleDialogOpen, setIsSaleDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [isProximityModalOpen, setIsProximityModalOpen] = useState(false);
+  const [nearbyAffiliations, setNearbyAffiliations] = useState<Array<{
+    id: string;
+    name: string;
+    distance: number;
+  }>>([]);
+
+  const { getCurrentPosition, loading: isLoadingLocation } = useGeolocation();
 
   const {
     data: stats,
@@ -59,6 +72,26 @@ const Dashboard = () => {
   } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: fetchDashboardStats,
+    enabled: !!user,
+  });
+
+  // Fetch affiliations for proximity check
+  const { data: affiliations = [] } = useQuery({
+    queryKey: ['affiliations'],
+    queryFn: async () => {
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('affiliations')
+        .select('id, name, latitude, longitude')
+        .eq('user_id', userId)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null);
+
+      if (error) throw error;
+      return data;
+    },
     enabled: !!user,
   });
 
@@ -76,6 +109,39 @@ const Dashboard = () => {
   const handlePaymentFormSuccess = () => {
     setIsPaymentDialogOpen(false);
     refetch();
+  };
+
+  const handleCustomerAccountsClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (affiliations.length === 0) {
+      // Se não há afiliações com coordenadas, vai direto
+      navigate('/customer-accounts');
+      return;
+    }
+
+    try {
+      const position = await getCurrentPosition();
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+
+      const nearby = findNearbyAffiliations(userLat, userLon, affiliations);
+      
+      if (nearby.length > 0) {
+        setNearbyAffiliations(nearby);
+        setIsProximityModalOpen(true);
+      } else {
+        navigate('/customer-accounts');
+      }
+    } catch (error) {
+      console.error('Erro ao obter localização:', error);
+      toast({
+        title: 'Localização não disponível',
+        description: 'Não foi possível obter sua localização. Continuando sem verificar proximidade.',
+        variant: 'destructive',
+      });
+      navigate('/customer-accounts');
+    }
   };
 
   if (isLoading) {
@@ -221,7 +287,7 @@ const Dashboard = () => {
               className='card-hover animate-slide-up'
               style={{ animationDelay: '0.1s' }}
             >
-              <Link to='/customer-accounts' className='block p-4'>
+              <div className='block p-4 cursor-pointer' onClick={handleCustomerAccountsClick}>
                 <div className='text-center space-y-3'>
                   <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
                     <Users className='h-6 w-6 text-primary' />
@@ -233,7 +299,7 @@ const Dashboard = () => {
                     </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             </Card>
 
             <Card
@@ -306,6 +372,13 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Affiliation Proximity Modal */}
+      <AffiliationProximityModal
+        open={isProximityModalOpen}
+        onOpenChange={setIsProximityModalOpen}
+        nearbyAffiliations={nearbyAffiliations}
+      />
 
       {/* Sale Dialog */}
       <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>
