@@ -343,9 +343,8 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             <Input
               id='address'
               {...register('address')}
-              className='mobile-input bg-muted/50'
-              placeholder='Será preenchido automaticamente pelo CEP'
-              readOnly
+              className='mobile-input'
+              placeholder='Rua, Bairro, Cidade, Estado'
             />
           </div>
 
