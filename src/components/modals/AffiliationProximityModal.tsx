@@ -21,12 +21,14 @@ interface AffiliationProximityModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   nearbyAffiliations: NearbyAffiliation[];
+  allAffiliations: Array<{ id: string; name: string }>;
 }
 
 export const AffiliationProximityModal = ({
   open,
   onOpenChange,
-  nearbyAffiliations
+  nearbyAffiliations,
+  allAffiliations
 }: AffiliationProximityModalProps) => {
   const [selectedAffiliation, setSelectedAffiliation] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -64,12 +66,16 @@ export const AffiliationProximityModal = ({
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Detectamos que você está próximo a {nearbyAffiliations.length === 1 ? 'uma afiliação' : 'afiliações'} cadastrada{nearbyAffiliations.length === 1 ? '' : 's'}. 
-            Deseja filtrar o crediário por uma afiliação específica?
+            Selecione uma afiliação para filtrar o crediário ou visualize todos os registros.
+            {nearbyAffiliations.length > 0 && (
+              <span className="block mt-1 text-primary">
+                📍 Detectamos afiliações próximas à sua localização
+              </span>
+            )}
           </p>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Afiliações próximas:</label>
+            <label className="text-sm font-medium">Opções de filtro:</label>
             
             <div 
               className="p-3 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:bg-muted/50"
@@ -88,32 +94,66 @@ export const AffiliationProximityModal = ({
               </div>
             </div>
 
-            {nearbyAffiliations.map((affiliation) => (
-              <div
-                key={affiliation.id}
-                className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
-                  selectedAffiliation === affiliation.id 
-                    ? 'border-primary bg-primary/5' 
-                    : 'border-border'
-                }`}
-                onClick={() => setSelectedAffiliation(affiliation.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-medium">{affiliation.name}</span>
+            {nearbyAffiliations.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-primary">Afiliações próximas:</label>
+                {nearbyAffiliations.map((affiliation) => (
+                  <div
+                    key={affiliation.id}
+                    className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
+                      selectedAffiliation === affiliation.id 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border'
+                    }`}
+                    onClick={() => setSelectedAffiliation(affiliation.id)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">{affiliation.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs text-primary">
+                          {formatDistance(affiliation.distance)}
+                        </Badge>
+                        {selectedAffiliation === affiliation.id && (
+                          <Badge variant="default" className="text-xs">Selecionado</Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-xs">
-                      {formatDistance(affiliation.distance)}
-                    </Badge>
-                    {selectedAffiliation === affiliation.id && (
-                      <Badge variant="default" className="text-xs">Selecionado</Badge>
-                    )}
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            )}
+
+            {allAffiliations.filter(aff => !nearbyAffiliations.find(nearby => nearby.id === aff.id)).length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Outras afiliações:</label>
+                {allAffiliations
+                  .filter(aff => !nearbyAffiliations.find(nearby => nearby.id === aff.id))
+                  .map((affiliation) => (
+                    <div
+                      key={affiliation.id}
+                      className={`p-3 rounded-lg border cursor-pointer transition-all hover:bg-muted/50 ${
+                        selectedAffiliation === affiliation.id 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border'
+                      }`}
+                      onClick={() => setSelectedAffiliation(affiliation.id)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">{affiliation.name}</span>
+                        </div>
+                        {selectedAffiliation === affiliation.id && (
+                          <Badge variant="default" className="text-xs">Selecionado</Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
 

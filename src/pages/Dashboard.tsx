@@ -381,11 +381,12 @@ const Dashboard = () => {
       </div>
 
       {/* Affiliation Proximity Modal */}
-      <AffiliationProximityModal
-        open={isProximityModalOpen}
-        onOpenChange={setIsProximityModalOpen}
-        nearbyAffiliations={nearbyAffiliations}
-      />
+        <AffiliationProximityModal
+          open={isProximityModalOpen}
+          onOpenChange={setIsProximityModalOpen}
+          nearbyAffiliations={nearbyAffiliations}
+          allAffiliations={affiliations || []}
+        />
 
       {/* Sale Dialog */}
       <Dialog open={isSaleDialogOpen} onOpenChange={setIsSaleDialogOpen}>
