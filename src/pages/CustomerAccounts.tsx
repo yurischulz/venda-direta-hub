@@ -129,15 +129,15 @@ const CustomerAccounts = () => {
           nearby = findNearbyAffiliations(userLat, userLon, affiliationsWithCoordinates);
         }
         
-        // Sempre mostra a modal se há afiliações
-        setNearbyAffiliations(nearby);
-        setIsProximityModalOpen(true);
+        // Sempre mostra a modal apenas se há afiliações próximas
+        if (nearby.length > 0) {
+          setNearbyAffiliations(nearby);
+          setIsProximityModalOpen(true);
+        }
         
       } catch (error) {
         console.error('Erro ao obter localização:', error);
-        // Mesmo com erro, mostra a modal
-        setNearbyAffiliations([]);
-        setIsProximityModalOpen(true);
+        // Com erro de localização, não mostra a modal
       } finally {
         setIsCheckingLocation(false);
       }
@@ -498,7 +498,6 @@ const CustomerAccounts = () => {
           open={isProximityModalOpen}
           onOpenChange={setIsProximityModalOpen}
           nearbyAffiliations={nearbyAffiliations}
-          allAffiliations={affiliations || []}
         />
       </MobileLayout>
     );
