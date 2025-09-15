@@ -90,7 +90,7 @@ export const ProximityBanner = ({
         <div className='space-y-2'>
           <div className='flex-1 space-y-3'>
             <div>
-              <p className='text-primary-foreground/90 text-sm mt-1'>
+              <p className='text-primary-foreground/80 text-xs mt-1'>
                 Filtrar por uma localização específica?
               </p>
             </div>
