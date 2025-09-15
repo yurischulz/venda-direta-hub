@@ -418,35 +418,21 @@ const CustomerAccounts = () => {
   return (
     <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
       <div className='p-4 space-y-4'>
-        {/* Estatísticas Gerais */}
-        <div className='grid grid-cols-3 gap-3'>
-          <Card>
-            <CardContent className='p-3 text-center'>
-              <div className='text-2xl font-bold text-primary'>
-                {totalAccounts}
-              </div>
-              <div className='text-xs text-muted-foreground'>Total Fichas</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className='p-3 text-center'>
-              <div className='text-2xl font-bold text-green-600'>
-                {activeAccounts}
-              </div>
-              <div className='text-xs text-muted-foreground'>Ativas</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className='p-3 text-center'>
-              <div className='text-lg font-bold text-destructive'>
-                {formatCurrency(totalPendingBalance).replace('R$', '').trim()}
-              </div>
-              <div className='text-xs text-muted-foreground'>A Receber</div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Filtro por Afiliação - only show when not in cadastrar mode and not in afiliacoes view */}
+        {activeFilter !== 'cadastrar' && activeFilter !== 'afiliacoes' && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium text-muted-foreground'>
+              Filtrar por Afiliação
+            </label>
+            <AffiliationSearchInput
+              affiliations={affiliations}
+              value={selectedAffiliationId}
+              onValueChange={setSelectedAffiliationId}
+              placeholder='Todas as afiliações'
+              className='w-full'
+            />
+          </div>
+        )}
 
         {/* WhatsApp-style Pills Filter */}
         <div className='bg-background border-b border-border'>
@@ -492,21 +478,6 @@ const CustomerAccounts = () => {
           </div>
         </div>
 
-        {/* Filtro por Afiliação - only show when not in cadastrar mode and not in afiliacoes view */}
-        {activeFilter !== 'cadastrar' && activeFilter !== 'afiliacoes' && (
-          <div className='space-y-2'>
-            <label className='text-sm font-medium text-muted-foreground'>
-              Filtrar por Afiliação
-            </label>
-            <AffiliationSearchInput
-              affiliations={affiliations}
-              value={selectedAffiliationId}
-              onValueChange={setSelectedAffiliationId}
-              placeholder='Todas as afiliações'
-              className='w-full'
-            />
-          </div>
-        )}
 
         {/* Content Area */}
         {activeFilter === 'cadastrar' ? (
