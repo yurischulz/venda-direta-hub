@@ -164,12 +164,7 @@ const CustomerAccounts = () => {
       const hasClients =
         clientsWithCoordinates && clientsWithCoordinates.length > 0;
 
-      console.log('Checking proximity:', {
-        hasAffiliations,
-        hasClients,
-        affiliationFilter,
-        clientFilter,
-      });
+      console.log('Checking proximity:', { hasAffiliations, hasClients, affiliationFilter, clientFilter });
 
       if (!hasAffiliations && !hasClients) return;
       if (affiliationFilter || clientFilter) return; // Skip if already has filter from URL
@@ -254,7 +249,7 @@ const CustomerAccounts = () => {
       affiliationsCount: affiliationsWithCoordinates.length,
       clientsCount: clientsWithCoordinates.length,
       showProximityBanner,
-      hasInteractedWithBanner,
+      hasInteractedWithBanner
     });
 
     if (canCheckProximity) {
@@ -402,8 +397,8 @@ const CustomerAccounts = () => {
 
       // Filter by search name (for clients)
       if (searchName.trim()) {
-        filtered = filtered.filter((account) =>
-          account.clients.name.toLowerCase().includes(searchName.toLowerCase())
+        filtered = filtered.filter(
+          (account) => account.clients.name.toLowerCase().includes(searchName.toLowerCase())
         );
       }
     }
@@ -457,8 +452,8 @@ const CustomerAccounts = () => {
             <input
               type='text'
               placeholder={
-                activeFilter === 'clientes'
-                  ? 'Pesquisar cliente...'
+                activeFilter === 'clientes' 
+                  ? 'Pesquisar cliente...' 
                   : 'Pesquisar afiliação...'
               }
               value={searchName}
@@ -470,7 +465,7 @@ const CustomerAccounts = () => {
 
         {/* Location loading skeleton */}
         {isCheckingLocation && <ProximityBannerSkeleton />}
-
+        
         {/* Proximity banner */}
         {showProximityBanner && (
           <ProximityBanner
@@ -542,6 +537,7 @@ const CustomerAccounts = () => {
           </div>
         )}
 
+
         {/* Content Area */}
         {activeFilter === 'cadastrar' ? (
           /* Cadastro inline */
@@ -595,6 +591,11 @@ const CustomerAccounts = () => {
           <div className='space-y-3'>
             {isCheckingLocation ? (
               <div className='space-y-4'>
+                <div className='text-center p-4'>
+                  <p className='text-muted-foreground mb-4'>
+                    Verificando localização...
+                  </p>
+                </div>
                 {Array.from({ length: 6 }).map((_, i) => (
                   <Card key={i}>
                     <CardHeader className='pb-3'>
