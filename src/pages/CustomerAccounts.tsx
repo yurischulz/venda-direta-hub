@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { MobileTabs, MobileTabsList, MobileTabsTrigger, MobileTabsContent } from '@/components/ui/mobile-tabs';
 import { ClientForm } from '@/components/forms/ClientForm';
 import { AffiliationForm } from '@/components/forms/AffiliationForm';
+import { AffiliationsList } from '@/components/AffiliationsList';
 
 interface CustomerAccount {
   id: string;
@@ -299,26 +300,25 @@ const CustomerAccounts = () => {
   const filteredAccounts = useMemo(() => {
     let filtered = accounts;
     
-    // First filter by type (todos, clientes, afiliacoes)
+    // Filter by type (todos, clientes) - afiliacoes shows different content
     if (activeFilter === 'clientes') {
       // Show only clients without affiliation
       filtered = accounts.filter(account => !account.clients.affiliation_id);
-    } else if (activeFilter === 'afiliacoes') {
-      // Show only clients with affiliation
-      filtered = accounts.filter(account => account.clients.affiliation_id);
     }
-    // 'todos' shows all accounts, no additional filtering needed
+    // 'todos' shows all accounts, 'afiliacoes' shows affiliations list instead
     
-    // Then apply secondary filters if any
-    const filterByAffiliation = affiliationFilter || selectedAffiliationId;
-    const filterByClient = clientFilter;
-    
-    if (filterByAffiliation) {
-      filtered = filtered.filter(account => account.clients.affiliation_id === filterByAffiliation);
-    }
-    
-    if (filterByClient) {
-      filtered = filtered.filter(account => account.client_id === filterByClient);
+    // Then apply secondary filters if any (only for todos and clientes)
+    if (activeFilter !== 'afiliacoes') {
+      const filterByAffiliation = affiliationFilter || selectedAffiliationId;
+      const filterByClient = clientFilter;
+      
+      if (filterByAffiliation) {
+        filtered = filtered.filter(account => account.clients.affiliation_id === filterByAffiliation);
+      }
+      
+      if (filterByClient) {
+        filtered = filtered.filter(account => account.client_id === filterByClient);
+      }
     }
     
     return filtered;
@@ -439,8 +439,8 @@ const CustomerAccounts = () => {
           </div>
         </div>
 
-        {/* Filtro por Afiliação - only show when not in cadastrar mode */}
-        {activeFilter !== 'cadastrar' && (
+        {/* Filtro por Afiliação - only show when not in cadastrar mode and not in afiliacoes view */}
+        {activeFilter !== 'cadastrar' && activeFilter !== 'afiliacoes' && (
           <div className='space-y-2'>
             <label className='text-sm font-medium text-muted-foreground'>
               Filtrar por Afiliação
@@ -493,6 +493,11 @@ const CustomerAccounts = () => {
                 </div>
               </MobileTabsContent>
             </MobileTabs>
+          </div>
+        ) : activeFilter === 'afiliacoes' ? (
+          /* Lista de Afiliações */
+          <div className="space-y-4">
+            <AffiliationsList />
           </div>
         ) : (
           /* Lista de Fichas */
