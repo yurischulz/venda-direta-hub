@@ -15,6 +15,7 @@ import Products from "./pages/Products";
 import Sales from "./pages/Sales";
 import Payments from "./pages/Payments";
 import CustomerAccounts from "./pages/CustomerAccounts";
+import CustomerAccountsRegister from "./pages/CustomerAccountsRegister";
 import AccountDetail from "./pages/AccountDetail";
 import Settings from "./pages/Settings";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -100,6 +101,14 @@ const App = () => (
               element={
                 <RequireAuth>
                   <CustomerAccounts />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/customer-accounts/register"
+              element={
+                <RequireAuth>
+                  <CustomerAccountsRegister />
                 </RequireAuth>
               }
             />
