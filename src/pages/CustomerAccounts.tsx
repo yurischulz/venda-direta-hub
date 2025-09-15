@@ -419,7 +419,7 @@ const CustomerAccounts = () => {
     <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
       <div className='p-4 space-y-4'>
         {/* Estatísticas Gerais */}
-        {/* <div className='grid grid-cols-3 gap-3'>
+        <div className='grid grid-cols-3 gap-3'>
           <Card>
             <CardContent className='p-3 text-center'>
               <div className='text-2xl font-bold text-primary'>
@@ -446,7 +446,7 @@ const CustomerAccounts = () => {
               <div className='text-xs text-muted-foreground'>A Receber</div>
             </CardContent>
           </Card>
-        </div> */}
+        </div>
 
         {/* WhatsApp-style Pills Filter */}
         <div className='bg-background border-b border-border'>
