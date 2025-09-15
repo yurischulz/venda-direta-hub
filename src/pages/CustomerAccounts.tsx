@@ -26,6 +26,9 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { findNearbyAffiliations } from '@/utils/geolocation';
 import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
 import { cn } from '@/lib/utils';
+import { MobileTabs, MobileTabsList, MobileTabsTrigger, MobileTabsContent } from '@/components/ui/mobile-tabs';
+import { ClientForm } from '@/components/forms/ClientForm';
+import { AffiliationForm } from '@/components/forms/AffiliationForm';
 
 interface CustomerAccount {
   id: string;
@@ -65,6 +68,7 @@ const CustomerAccounts = () => {
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
   const [activeFilter, setActiveFilter] = useState<'todos' | 'clientes' | 'afiliacoes' | 'cadastrar'>('todos');
+  const [cadastroTab, setCadastroTab] = useState('client');
 
   const { getCurrentPosition } = useGeolocation();
   
@@ -341,6 +345,11 @@ const CustomerAccounts = () => {
     setChargeModalOpen(true);
   };
 
+  const handleFormSuccess = () => {
+    // Reset to "todos" tab after successful registration
+    setActiveFilter('todos');
+  };
+
   return (
     <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
       <div className='p-4 space-y-4'>
@@ -416,7 +425,6 @@ const CustomerAccounts = () => {
             <button
               onClick={() => {
                 setActiveFilter('cadastrar');
-                navigate('/customer-accounts/register');
               }}
               className={cn(
                 "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
@@ -431,21 +439,63 @@ const CustomerAccounts = () => {
           </div>
         </div>
 
-        {/* Filtro por Afiliação */}
-        <div className='space-y-2'>
-          <label className='text-sm font-medium text-muted-foreground'>
-            Filtrar por Afiliação
-          </label>
-          <AffiliationSearchInput
-            affiliations={affiliations}
-            value={selectedAffiliationId}
-            onValueChange={setSelectedAffiliationId}
-            placeholder="Todas as afiliações"
-            className="w-full"
-          />
-        </div>
+        {/* Filtro por Afiliação - only show when not in cadastrar mode */}
+        {activeFilter !== 'cadastrar' && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium text-muted-foreground'>
+              Filtrar por Afiliação
+            </label>
+            <AffiliationSearchInput
+              affiliations={affiliations}
+              value={selectedAffiliationId}
+              onValueChange={setSelectedAffiliationId}
+              placeholder="Todas as afiliações"
+              className="w-full"
+            />
+          </div>
+        )}
 
-        {/* Lista de Fichas */}
+        {/* Content Area */}
+        {activeFilter === 'cadastrar' ? (
+          /* Cadastro inline */
+          <div className="space-y-4">
+            <MobileTabs value={cadastroTab} onValueChange={setCadastroTab}>
+              <MobileTabsList>
+                <MobileTabsTrigger value="client">
+                  Cadastrar Cliente
+                </MobileTabsTrigger>
+                <MobileTabsTrigger value="affiliation">
+                  Cadastrar Afiliação
+                </MobileTabsTrigger>
+              </MobileTabsList>
+              
+              <MobileTabsContent value="client">
+                <div className="p-4 space-y-4">
+                  <div className="text-center space-y-2 mb-6">
+                    <h2 className="text-xl font-semibold text-foreground">Novo Cliente</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Cadastre um novo cliente para o crediário
+                    </p>
+                  </div>
+                  <ClientForm onSuccess={handleFormSuccess} />
+                </div>
+              </MobileTabsContent>
+              
+              <MobileTabsContent value="affiliation">
+                <div className="p-4 space-y-4">
+                  <div className="text-center space-y-2 mb-6">
+                    <h2 className="text-xl font-semibold text-foreground">Nova Afiliação</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Cadastre uma nova afiliação para o sistema
+                    </p>
+                  </div>
+                  <AffiliationForm onSuccess={handleFormSuccess} />
+                </div>
+              </MobileTabsContent>
+            </MobileTabs>
+          </div>
+        ) : (
+          /* Lista de Fichas */
         <div className='space-y-3'>
           {isCheckingLocation ? (
             <div className="space-y-4">
@@ -586,6 +636,7 @@ const CustomerAccounts = () => {
             })
           )}
         </div>
+        )}
 
         {/* Modal de Cobrança */}
         {selectedClient && (
@@ -596,16 +647,16 @@ const CustomerAccounts = () => {
             clientPhone={selectedClient.phone}
           />
         )}
-        </div>
+      </div>
 
-        <AffiliationProximityModal
-          open={isProximityModalOpen}
-          onOpenChange={setIsProximityModalOpen}
-          nearbyAffiliations={nearbyAffiliations}
-          onInteraction={() => setHasInteractedWithModal(true)}
-        />
-      </MobileLayout>
-    );
-  };
+      <AffiliationProximityModal
+        open={isProximityModalOpen}
+        onOpenChange={setIsProximityModalOpen}
+        nearbyAffiliations={nearbyAffiliations}
+        onInteraction={() => setHasInteractedWithModal(true)}
+      />
+    </MobileLayout>
+  );
+};
 
 export default CustomerAccounts;
