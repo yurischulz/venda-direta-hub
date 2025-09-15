@@ -73,10 +73,6 @@ export const ProximityBanner = ({
               <MapPin className='h-5 w-5 text-primary-foreground' />
             </div>
           </div>
-        </div>
-
-        {/* Location selection */}
-        <div className='space-y-2'>
           <div className='flex-1 space-y-3'>
             <div>
               <p className='text-primary-foreground font-medium'>
@@ -86,6 +82,14 @@ export const ProximityBanner = ({
                   : 'localizações cadastradas'}
                 .
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Location selection */}
+        <div className='space-y-2'>
+          <div className='flex-1 space-y-3'>
+            <div>
               <p className='text-primary-foreground/90 text-sm mt-1'>
                 Filtrar por uma localização específica?
               </p>
