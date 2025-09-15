@@ -24,7 +24,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { findNearbyAffiliations } from '@/utils/geolocation';
-import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
+import { ProximityBanner } from '@/components/ui/proximity-banner';
 import { cn } from '@/lib/utils';
 import {
   MobileTabs,
@@ -65,8 +65,8 @@ const CustomerAccounts = () => {
   } | null>(null);
   const [selectedAffiliationId, setSelectedAffiliationId] =
     useState<string>('');
-  const [isProximityModalOpen, setIsProximityModalOpen] = useState(false);
-  const [nearbyAffiliations, setNearbyAffiliations] = useState<
+  const [showProximityBanner, setShowProximityBanner] = useState(false);
+  const [nearbyLocations, setNearbyLocations] = useState<
     Array<{
       id: string;
       name: string;
@@ -75,7 +75,7 @@ const CustomerAccounts = () => {
     }>
   >([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
-  const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
+  const [hasInteractedWithBanner, setHasInteractedWithBanner] = useState(false);
   const [activeFilter, setActiveFilter] = useState<
     'clientes' | 'afiliacoes' | 'cadastrar'
   >('clientes');
@@ -216,10 +216,10 @@ const CustomerAccounts = () => {
           nearby.sort((a, b) => a.distance - b.distance);
         }
 
-        // Show modal only if there are nearby locations
+        // Show banner only if there are nearby locations
         if (nearby.length > 0) {
-          setNearbyAffiliations(nearby);
-          setIsProximityModalOpen(true);
+          setNearbyLocations(nearby);
+          setShowProximityBanner(true);
         }
       } catch (error) {
         console.error('Erro ao obter localização:', error);
@@ -229,14 +229,14 @@ const CustomerAccounts = () => {
       }
     };
 
-    // Only check proximity if we haven't checked yet and user hasn't interacted with modal yet
+    // Only check proximity if we haven't checked yet and user hasn't interacted with banner yet
     const canCheckProximity =
       (affiliationsWithCoordinates.length > 0 ||
         clientsWithCoordinates.length > 0) &&
-      !isProximityModalOpen &&
+      !showProximityBanner &&
       !affiliationFilter &&
       !clientFilter &&
-      !hasInteractedWithModal;
+      !hasInteractedWithBanner;
 
     if (canCheckProximity) {
       checkProximity();
@@ -245,10 +245,10 @@ const CustomerAccounts = () => {
     affiliationsWithCoordinates,
     clientsWithCoordinates,
     getCurrentPosition,
-    isProximityModalOpen,
+    showProximityBanner,
     affiliationFilter,
     clientFilter,
-    hasInteractedWithModal,
+    hasInteractedWithBanner,
   ]);
 
   const { data: accounts = [], isLoading } = useQuery({
@@ -723,12 +723,15 @@ const CustomerAccounts = () => {
         )}
       </div>
 
-      <AffiliationProximityModal
-        open={isProximityModalOpen}
-        onOpenChange={setIsProximityModalOpen}
-        nearbyAffiliations={nearbyAffiliations}
-        onInteraction={() => setHasInteractedWithModal(true)}
-      />
+      {showProximityBanner && (
+        <ProximityBanner
+          nearbyLocations={nearbyLocations}
+          onClose={() => {
+            setShowProximityBanner(false);
+            setHasInteractedWithBanner(true);
+          }}
+        />
+      )}
     </MobileLayout>
   );
 };
