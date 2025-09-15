@@ -25,6 +25,7 @@ import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { findNearbyAffiliations } from '@/utils/geolocation';
 import { AffiliationProximityModal } from '@/components/modals/AffiliationProximityModal';
+import { cn } from '@/lib/utils';
 
 interface CustomerAccount {
   id: string;
@@ -63,6 +64,7 @@ const CustomerAccounts = () => {
   }>>([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<'lista' | 'cadastrar'>('lista');
 
   const { getCurrentPosition } = useGeolocation();
   
@@ -359,25 +361,33 @@ const CustomerAccounts = () => {
           </Card>
         </div>
 
-        {/* Ações Rápidas */}
-        <div className='grid grid-cols-2 gap-3'>
-          <Button
-            onClick={() => navigate('/clients?from=customer-accounts')}
-            className='h-12 mobile-tap'
-            variant='outline'
+        {/* Pills Filter */}
+        <div className="flex bg-muted rounded-lg p-1 gap-1">
+          <button
+            onClick={() => setActiveFilter('lista')}
+            className={cn(
+              "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+              activeFilter === 'lista'
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           >
-            <Plus className='h-4 w-4 mr-2' />
-            Novo Cliente
-          </Button>
-
-          <Button
-            onClick={() => navigate('/affiliations/new?from=customer-accounts')}
-            className='h-12 mobile-tap'
-            variant='outline'
+            Lista
+          </button>
+          <button
+            onClick={() => {
+              setActiveFilter('cadastrar');
+              navigate('/customer-accounts/register');
+            }}
+            className={cn(
+              "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+              activeFilter === 'cadastrar'
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           >
-            <Users className='h-4 w-4 mr-2' />
-            Nova Afiliação
-          </Button>
+            Cadastrar
+          </button>
         </div>
 
         {/* Filtro por Afiliação */}
