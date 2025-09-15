@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { WhatsAppInput } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { CpfInput } from '@/components/ui/cpf-input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
+  WhatsAppSelectTrigger,
+  WhatsAppSelectContent,
+  WhatsAppSelectItem,
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
@@ -260,10 +260,9 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='name'>Nome *</Label>
-            <Input
+            <WhatsAppInput
               id='name'
               {...register('name', { required: true })}
-              className='mobile-input'
               placeholder='Nome completo do cliente'
             />
           </div>
@@ -305,11 +304,10 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
 
           <div className='space-y-2'>
             <Label htmlFor='email'>Email</Label>
-            <Input
+            <WhatsAppInput
               id='email'
               type='email'
               {...register('email')}
-              className='mobile-input'
               placeholder='cliente@email.com'
             />
           </div>
@@ -320,11 +318,11 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               🏠 Digite seu CEP e encontraremos o endereço automaticamente
             </div>
             <div className="relative">
-              <Input
+              <WhatsAppInput
                 id='cep'
                 {...register('cep')}
                 onChange={handleCepChange}
-                className='mobile-input pr-10'
+                className='pr-10'
                 placeholder='00000-000'
                 maxLength={9}
               />
@@ -340,10 +338,9 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
 
           <div className='space-y-2'>
             <Label htmlFor='address'>Endereço</Label>
-            <Input
+            <WhatsAppInput
               id='address'
               {...register('address')}
-              className='mobile-input'
               placeholder='Rua, Bairro, Cidade, Estado'
             />
           </div>
@@ -351,20 +348,18 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
           <div className="grid grid-cols-2 gap-4">
             <div className='space-y-2'>
               <Label htmlFor='address_number'>Número</Label>
-              <Input
+              <WhatsAppInput
                 id='address_number'
                 {...register('address_number')}
-                className='mobile-input'
                 placeholder='123'
               />
             </div>
 
             <div className='space-y-2'>
               <Label htmlFor='address_complement'>Complemento</Label>
-              <Input
+              <WhatsAppInput
                 id='address_complement'
                 {...register('address_complement')}
-                className='mobile-input'
                 placeholder='Apto 45, Bloco B'
               />
             </div>
@@ -376,17 +371,17 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               value={selectedAffiliation}
               onValueChange={setSelectedAffiliation}
             >
-              <SelectTrigger className='mobile-input'>
+              <WhatsAppSelectTrigger>
                 <SelectValue placeholder='Selecione uma afiliação (opcional)' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='none'>Nenhuma</SelectItem>
+              </WhatsAppSelectTrigger>
+              <WhatsAppSelectContent>
+                <WhatsAppSelectItem value='none'>Nenhuma</WhatsAppSelectItem>
                 {affiliations.map((affiliation) => (
-                  <SelectItem key={affiliation.id} value={affiliation.id}>
+                  <WhatsAppSelectItem key={affiliation.id} value={affiliation.id}>
                     {affiliation.name}
-                  </SelectItem>
+                  </WhatsAppSelectItem>
                 ))}
-              </SelectContent>
+              </WhatsAppSelectContent>
             </Select>
           </div>
 

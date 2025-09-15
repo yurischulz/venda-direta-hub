@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import { WhatsAppInput } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -113,24 +113,24 @@ export function SearchableInput<T>({
   return (
     <div ref={containerRef} className='relative'>
       <div className='relative'>
-        <Input
+        <WhatsAppInput
           ref={inputRef}
           value={currentSearchTerm}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
           placeholder={placeholder}
-          className={cn('mobile-input pr-8', className)}
+          className={cn('pr-10', className)}
         />
         <Button
           type='button'
           variant='ghost'
           size='sm'
-          className='absolute right-0 top-0 h-full px-2 hover:bg-transparent'
+          className='absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 p-0 hover:bg-transparent'
           onClick={() => setIsOpen(!isOpen)}
         >
           <ChevronDown
             className={cn(
-              'h-4 w-4 transition-transform',
+              'h-4 w-4 transition-transform text-muted-foreground',
               isOpen && 'rotate-180'
             )}
           />
@@ -138,13 +138,13 @@ export function SearchableInput<T>({
       </div>
 
       {isOpen && (
-        <Card className='absolute top-full left-0 right-0 z-[99999] mt-1 max-h-60 overflow-auto border shadow-lg bg-card'>
+        <Card className='absolute top-full left-0 right-0 z-[99999] mt-2 max-h-60 overflow-auto border-0 shadow-xl bg-background rounded-2xl'>
           {filteredItems.length === 0 && !showCreateOption ? (
-            <div className='p-3 text-sm text-muted-foreground text-center'>
+            <div className='p-4 text-sm text-muted-foreground text-center'>
               Nenhum resultado encontrado
             </div>
           ) : (
-            <div className='p-1'>
+            <div className='p-2'>
               {filteredItems.map((item, index) => {
                 const isSelected = getItemValue(item) === value;
                 return (
@@ -152,19 +152,19 @@ export function SearchableInput<T>({
                     key={index}
                     variant='ghost'
                     className={cn(
-                      'w-full justify-start px-3 py-2 h-auto text-left font-normal hover:bg-accent',
-                      isSelected && 'bg-accent'
+                      'w-full justify-start px-4 py-3 h-auto text-left font-normal hover:bg-muted/50 rounded-xl transition-all duration-200',
+                      isSelected && 'bg-primary/10 text-primary'
                     )}
                     onClick={() => handleItemSelect(item)}
                   >
-                    <div className='flex items-center gap-2 flex-1'>
-                      {isSelected && <Check className='h-4 w-4' />}
+                    <div className='flex items-center gap-3 flex-1'>
+                      {isSelected && <Check className='h-4 w-4 text-primary' />}
                       <div className='flex-1 min-w-0'>
                         <div className='font-medium truncate'>
                           {getItemLabel(item)}
                         </div>
                         {getItemSubLabel && (
-                          <div className='text-xs text-muted-foreground truncate'>
+                          <div className='text-xs text-muted-foreground truncate mt-1'>
                             {getItemSubLabel(item)}
                           </div>
                         )}
@@ -177,14 +177,14 @@ export function SearchableInput<T>({
               {showCreateOption && (
                 <>
                   {filteredItems.length > 0 && (
-                    <div className='border-t my-1' />
+                    <div className='border-t border-muted/30 my-2' />
                   )}
                   <Button
                     variant='ghost'
-                    className='w-full justify-start px-3 py-2 text-left font-normal hover:bg-accent text-primary'
+                    className='w-full justify-start px-4 py-3 text-left font-normal hover:bg-primary/10 text-primary rounded-xl transition-all duration-200'
                     onClick={handleCreateNew}
                   >
-                    <Plus className='h-4 w-4 mr-2' />
+                    <Plus className='h-4 w-4 mr-3' />
                     {createNewLabel}: "{currentSearchTerm}"
                   </Button>
                 </>

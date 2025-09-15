@@ -17,6 +17,24 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
     )
   }
 )
-Input.displayName = "Input"
 
-export { Input }
+// WhatsApp-style input variant
+const WhatsAppInput = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex w-full px-4 py-3 bg-muted/50 border-0 rounded-2xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Input.displayName = "Input"
+WhatsAppInput.displayName = "WhatsAppInput"
+
+export { Input, WhatsAppInput }

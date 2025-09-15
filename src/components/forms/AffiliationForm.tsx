@@ -1,6 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { WhatsAppInput } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
@@ -216,10 +216,9 @@ export const AffiliationForm = ({
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='name'>Nome *</Label>
-            <Input
+            <WhatsAppInput
               id='name'
               {...register('name', { required: true })}
-              className='mobile-input'
               placeholder='Nome da afiliação'
             />
           </div>
@@ -247,11 +246,11 @@ export const AffiliationForm = ({
               🏠 Digite seu CEP e encontraremos o endereço automaticamente
             </div>
             <div className="relative">
-              <Input
+              <WhatsAppInput
                 id='cep'
                 {...register('cep')}
                 onChange={handleCepChange}
-                className='mobile-input pr-10'
+                className='pr-10'
                 placeholder='00000-000'
                 maxLength={9}
               />
@@ -267,10 +266,9 @@ export const AffiliationForm = ({
 
           <div className='space-y-2'>
             <Label htmlFor='address'>Endereço</Label>
-            <Input
+            <WhatsAppInput
               id='address'
               {...register('address')}
-              className='mobile-input'
               placeholder='Rua, Bairro, Cidade, Estado'
             />
           </div>
@@ -278,20 +276,18 @@ export const AffiliationForm = ({
           <div className="grid grid-cols-2 gap-4">
             <div className='space-y-2'>
               <Label htmlFor='address_number'>Número</Label>
-              <Input
+              <WhatsAppInput
                 id='address_number'
                 {...register('address_number')}
-                className='mobile-input'
                 placeholder='123'
               />
             </div>
 
             <div className='space-y-2'>
               <Label htmlFor='address_complement'>Complemento</Label>
-              <Input
+              <WhatsAppInput
                 id='address_complement'
                 {...register('address_complement')}
-                className='mobile-input'
                 placeholder='Apto 45, Bloco B'
               />
             </div>
