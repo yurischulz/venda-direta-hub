@@ -47,7 +47,11 @@ const MobileTabs: React.FC<MobileTabsProps> = ({
 
 const MobileTabsList: React.FC<MobileTabsListProps> = ({ children, className }) => {
   return (
-    <div className={cn("mobile-tabs", className)}>
+    <div className={cn(
+      "flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3",
+      "snap-x snap-mandatory",
+      className
+    )}>
       {children}
     </div>
   )
@@ -67,8 +71,11 @@ const MobileTabsTrigger: React.FC<MobileTabsTriggerProps> = ({
   return (
     <button
       className={cn(
-        "mobile-tab mobile-tap",
-        isActive && "active",
+        "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 snap-start",
+        "whitespace-nowrap select-none touch-manipulation",
+        isActive 
+          ? "bg-primary text-primary-foreground shadow-sm" 
+          : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
         className
       )}
       onClick={() => onValueChange(value)}

@@ -128,6 +128,16 @@ All colors MUST be HSL. Mobile-first design with modern color palette.
     background: hsl(var(--muted-foreground));
     border-radius: 3px;
   }
+
+  /* Hide scrollbars completely for WhatsApp-style tabs */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @layer components {

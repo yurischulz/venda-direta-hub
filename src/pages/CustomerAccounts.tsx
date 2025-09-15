@@ -361,33 +361,37 @@ const CustomerAccounts = () => {
           </Card>
         </div>
 
-        {/* Pills Filter */}
-        <div className="flex bg-muted rounded-lg p-1 gap-1">
-          <button
-            onClick={() => setActiveFilter('lista')}
-            className={cn(
-              "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-              activeFilter === 'lista'
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Lista
-          </button>
-          <button
-            onClick={() => {
-              setActiveFilter('cadastrar');
-              navigate('/customer-accounts/register');
-            }}
-            className={cn(
-              "flex-1 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
-              activeFilter === 'cadastrar'
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            Cadastrar
-          </button>
+        {/* WhatsApp-style Pills Filter */}
+        <div className="bg-background border-b border-border">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3">
+            <button
+              onClick={() => setActiveFilter('lista')}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                "whitespace-nowrap select-none touch-manipulation",
+                activeFilter === 'lista'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              )}
+            >
+              Lista
+            </button>
+            <button
+              onClick={() => {
+                setActiveFilter('cadastrar');
+                navigate('/customer-accounts/register');
+              }}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                "whitespace-nowrap select-none touch-manipulation",
+                activeFilter === 'cadastrar'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              )}
+            >
+              Cadastrar
+            </button>
+          </div>
         </div>
 
         {/* Filtro por Afiliação */}
