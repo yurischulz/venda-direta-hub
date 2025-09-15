@@ -87,61 +87,61 @@ export const ProximityBanner = ({
                 Filtrar por uma localização específica?
               </p>
             </div>
+          </div>
+        </div>
 
-            {/* Location selection */}
-            <div className='space-y-2'>
-              {nearbyLocations.map((location) => (
-                <div
-                  key={location.id}
-                  className={`bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer transition-all duration-200 ${
-                    selectedLocationId === location.id
-                      ? 'bg-primary-foreground/20 ring-2 ring-primary-foreground/30'
-                      : 'hover:bg-primary-foreground/15'
-                  }`}
-                  onClick={() => handleLocationSelect(location.id)}
-                >
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-2'>
-                      <div className='flex flex-col'>
-                        <span className='text-primary-foreground font-medium text-sm'>
-                          {location.name}
-                        </span>
-                        <span className='text-primary-foreground/80 text-xs'>
-                          {location.type === 'affiliation'
-                            ? 'Afiliação'
-                            : 'Cliente'}
-                        </span>
-                      </div>
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      <Badge
-                        variant='secondary'
-                        className='text-xs bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30'
-                      >
-                        {formatDistance(location.distance)}
-                      </Badge>
-                      {selectedLocationId === location.id && (
-                        <div className='w-2 h-2 bg-primary-foreground rounded-full'></div>
-                      )}
-                    </div>
+        {/* Location selection */}
+        <div className='space-y-2'>
+          {nearbyLocations.map((location) => (
+            <div
+              key={location.id}
+              className={`bg-primary-foreground/10 backdrop-blur-sm rounded-xl p-3 cursor-pointer transition-all duration-200 ${
+                selectedLocationId === location.id
+                  ? 'bg-primary-foreground/20 ring-2 ring-primary-foreground/30'
+                  : 'hover:bg-primary-foreground/15'
+              }`}
+              onClick={() => handleLocationSelect(location.id)}
+            >
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-2'>
+                  <div className='flex flex-col'>
+                    <span className='text-primary-foreground font-medium text-sm'>
+                      {location.name}
+                    </span>
+                    <span className='text-primary-foreground/80 text-xs'>
+                      {location.type === 'affiliation'
+                        ? 'Afiliação'
+                        : 'Cliente'}
+                    </span>
                   </div>
                 </div>
-              ))}
+                <div className='flex items-center gap-2'>
+                  <Badge
+                    variant='secondary'
+                    className='text-xs bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30'
+                  >
+                    {formatDistance(location.distance)}
+                  </Badge>
+                  {selectedLocationId === location.id && (
+                    <div className='w-2 h-2 bg-primary-foreground rounded-full'></div>
+                  )}
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
 
-            {/* Action buttons */}
-            <div className='flex gap-2 pt-2'>
-              <Button
-                variant='secondary'
-                size='sm'
-                onClick={handleFilter}
-                className='bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/30 backdrop-blur-sm'
-                disabled={!selectedLocationId}
-              >
-                FILTRAR
-              </Button>
-            </div>
-          </div>
+        {/* Action buttons */}
+        <div className='flex gap-2 pt-2'>
+          <Button
+            variant='secondary'
+            size='sm'
+            onClick={handleFilter}
+            className='bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 hover:bg-primary-foreground/30 backdrop-blur-sm'
+            disabled={!selectedLocationId}
+          >
+            FILTRAR
+          </Button>
         </div>
       </div>
     </div>
