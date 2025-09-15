@@ -68,7 +68,7 @@ const CustomerAccounts = () => {
   }>>([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'todos' | 'clientes' | 'afiliacoes' | 'cadastrar'>('todos');
+  const [activeFilter, setActiveFilter] = useState<'clientes' | 'afiliacoes' | 'cadastrar'>('clientes');
   const [cadastroTab, setCadastroTab] = useState('client');
 
   const { getCurrentPosition } = useGeolocation();
@@ -300,14 +300,14 @@ const CustomerAccounts = () => {
   const filteredAccounts = useMemo(() => {
     let filtered = accounts;
     
-    // Filter by type (todos, clientes) - afiliacoes shows different content
+    // Filter by type (clientes) - afiliacoes shows different content
     if (activeFilter === 'clientes') {
-      // Show only clients without affiliation
-      filtered = accounts.filter(account => !account.clients.affiliation_id);
+      // Show all accounts for clientes tab (previously "todos" functionality)
+      filtered = accounts;
     }
-    // 'todos' shows all accounts, 'afiliacoes' shows affiliations list instead
+    // 'afiliacoes' shows affiliations list instead
     
-    // Then apply secondary filters if any (only for todos and clientes)
+    // Then apply secondary filters if any (only for clientes)
     if (activeFilter !== 'afiliacoes') {
       const filterByAffiliation = affiliationFilter || selectedAffiliationId;
       const filterByClient = clientFilter;
@@ -346,8 +346,8 @@ const CustomerAccounts = () => {
   };
 
   const handleFormSuccess = () => {
-    // Reset to "todos" tab after successful registration
-    setActiveFilter('todos');
+    // Reset to "clientes" tab after successful registration
+    setActiveFilter('clientes');
   };
 
   return (
@@ -386,18 +386,6 @@ const CustomerAccounts = () => {
         {/* WhatsApp-style Pills Filter */}
         <div className="bg-background border-b border-border">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3">
-            <button
-              onClick={() => setActiveFilter('todos')}
-              className={cn(
-                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                "whitespace-nowrap select-none touch-manipulation",
-                activeFilter === 'todos'
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-              )}
-            >
-              Todos
-            </button>
             <button
               onClick={() => setActiveFilter('clientes')}
               className={cn(
