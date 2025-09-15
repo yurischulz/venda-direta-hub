@@ -64,7 +64,7 @@ const CustomerAccounts = () => {
   }>>([]);
   const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [hasInteractedWithModal, setHasInteractedWithModal] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'lista' | 'cadastrar'>('lista');
+  const [activeFilter, setActiveFilter] = useState<'todos' | 'clientes' | 'afiliacoes' | 'cadastrar'>('todos');
 
   const { getCurrentPosition } = useGeolocation();
   
@@ -291,21 +291,34 @@ const CustomerAccounts = () => {
     );
   };
 
-  // Filter accounts by affiliation or client - use URL param or selected affiliation
+  // Filter accounts by type and affiliation
   const filteredAccounts = useMemo(() => {
+    let filtered = accounts;
+    
+    // First filter by type (todos, clientes, afiliacoes)
+    if (activeFilter === 'clientes') {
+      // Show only clients without affiliation
+      filtered = accounts.filter(account => !account.clients.affiliation_id);
+    } else if (activeFilter === 'afiliacoes') {
+      // Show only clients with affiliation
+      filtered = accounts.filter(account => account.clients.affiliation_id);
+    }
+    // 'todos' shows all accounts, no additional filtering needed
+    
+    // Then apply secondary filters if any
     const filterByAffiliation = affiliationFilter || selectedAffiliationId;
     const filterByClient = clientFilter;
     
     if (filterByAffiliation) {
-      return accounts.filter(account => account.clients.affiliation_id === filterByAffiliation);
+      filtered = filtered.filter(account => account.clients.affiliation_id === filterByAffiliation);
     }
     
     if (filterByClient) {
-      return accounts.filter(account => account.client_id === filterByClient);
+      filtered = filtered.filter(account => account.client_id === filterByClient);
     }
     
-    return accounts;
-  }, [accounts, affiliationFilter, selectedAffiliationId, clientFilter]);
+    return filtered;
+  }, [accounts, activeFilter, affiliationFilter, selectedAffiliationId, clientFilter]);
 
   // Estatísticas gerais
   const totalAccounts = filteredAccounts.length;
@@ -365,16 +378,40 @@ const CustomerAccounts = () => {
         <div className="bg-background border-b border-border">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3">
             <button
-              onClick={() => setActiveFilter('lista')}
+              onClick={() => setActiveFilter('todos')}
               className={cn(
                 "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
                 "whitespace-nowrap select-none touch-manipulation",
-                activeFilter === 'lista'
+                activeFilter === 'todos'
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
               )}
             >
-              Lista
+              Todos
+            </button>
+            <button
+              onClick={() => setActiveFilter('clientes')}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                "whitespace-nowrap select-none touch-manipulation",
+                activeFilter === 'clientes'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              )}
+            >
+              Clientes
+            </button>
+            <button
+              onClick={() => setActiveFilter('afiliacoes')}
+              className={cn(
+                "flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                "whitespace-nowrap select-none touch-manipulation",
+                activeFilter === 'afiliacoes'
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              )}
+            >
+              Afiliações
             </button>
             <button
               onClick={() => {
