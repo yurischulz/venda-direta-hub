@@ -463,6 +463,20 @@ const CustomerAccounts = () => {
           </div>
         )}
 
+        {/* Location loading skeleton */}
+        {isCheckingLocation && <ProximityBannerSkeleton />}
+        
+        {/* Proximity banner */}
+        {showProximityBanner && (
+          <ProximityBanner
+            nearbyLocations={nearbyLocations}
+            onClose={() => {
+              setShowProximityBanner(false);
+              setHasInteractedWithBanner(true);
+            }}
+          />
+        )}
+
         {/* WhatsApp-style Pills Filter */}
         <div className='bg-background border-b border-border'>
           <div className='flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3'>
@@ -736,20 +750,6 @@ const CustomerAccounts = () => {
           />
         )}
       </div>
-
-      {/* Location loading skeleton */}
-      {isCheckingLocation && <ProximityBannerSkeleton />}
-      
-      {/* Proximity banner */}
-      {showProximityBanner && (
-        <ProximityBanner
-          nearbyLocations={nearbyLocations}
-          onClose={() => {
-            setShowProximityBanner(false);
-            setHasInteractedWithBanner(true);
-          }}
-        />
-      )}
     </MobileLayout>
   );
 };
