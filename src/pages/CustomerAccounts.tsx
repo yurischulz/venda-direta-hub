@@ -25,6 +25,7 @@ import { AffiliationSearchInput } from '@/components/ui/affiliation-search-input
 import { useGeolocation } from '@/hooks/useGeolocation';
 import { findNearbyAffiliations } from '@/utils/geolocation';
 import { ProximityBanner } from '@/components/ui/proximity-banner';
+import { ProximityBannerSkeleton } from '@/components/ui/proximity-banner-skeleton';
 import { cn } from '@/lib/utils';
 import {
   MobileTabs,
@@ -163,6 +164,8 @@ const CustomerAccounts = () => {
       const hasClients =
         clientsWithCoordinates && clientsWithCoordinates.length > 0;
 
+      console.log('Checking proximity:', { hasAffiliations, hasClients, affiliationFilter, clientFilter });
+
       if (!hasAffiliations && !hasClients) return;
       if (affiliationFilter || clientFilter) return; // Skip if already has filter from URL
 
@@ -170,6 +173,7 @@ const CustomerAccounts = () => {
 
       try {
         const position = await getCurrentPosition();
+        console.log('Got position:', position);
 
         let nearby: Array<{
           id: string;
@@ -216,14 +220,17 @@ const CustomerAccounts = () => {
           nearby.sort((a, b) => a.distance - b.distance);
         }
 
+        console.log('Nearby locations found:', nearby);
+
         // Show banner only if there are nearby locations
         if (nearby.length > 0) {
           setNearbyLocations(nearby);
           setShowProximityBanner(true);
+          console.log('Banner should show now');
         }
       } catch (error) {
         console.error('Erro ao obter localização:', error);
-        // Com erro de localização, não mostra a modal
+        // Com erro de localização, não mostra o banner
       } finally {
         setIsCheckingLocation(false);
       }
@@ -237,6 +244,13 @@ const CustomerAccounts = () => {
       !affiliationFilter &&
       !clientFilter &&
       !hasInteractedWithBanner;
+
+    console.log('Can check proximity:', canCheckProximity, {
+      affiliationsCount: affiliationsWithCoordinates.length,
+      clientsCount: clientsWithCoordinates.length,
+      showProximityBanner,
+      hasInteractedWithBanner
+    });
 
     if (canCheckProximity) {
       checkProximity();
@@ -723,6 +737,10 @@ const CustomerAccounts = () => {
         )}
       </div>
 
+      {/* Location loading skeleton */}
+      {isCheckingLocation && <ProximityBannerSkeleton />}
+      
+      {/* Proximity banner */}
       {showProximityBanner && (
         <ProximityBanner
           nearbyLocations={nearbyLocations}
