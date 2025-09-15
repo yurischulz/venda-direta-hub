@@ -39,12 +39,14 @@ interface AffiliationsListProps {
   showActions?: boolean;
   onEdit?: (affiliationId: string) => void;
   onNew?: () => void;
+  searchName?: string;
 }
 
 export const AffiliationsList = ({ 
   showActions = true, 
   onEdit, 
-  onNew 
+  onNew,
+  searchName = ''
 }: AffiliationsListProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -65,6 +67,12 @@ export const AffiliationsList = ({
       return data as Affiliation[];
     },
   });
+
+  // Filter affiliations by search name
+  const filteredAffiliations = affiliations?.filter(affiliation => 
+    searchName.trim() === '' || 
+    affiliation.name.toLowerCase().includes(searchName.toLowerCase())
+  ) || [];
 
   const deleteMutation = useMutation({
     mutationFn: async (affiliationId: string) => {
@@ -135,14 +143,14 @@ export const AffiliationsList = ({
               <div className='p-2 bg-primary/10 rounded-lg'>
                 <Users className='h-5 w-5 text-primary' />
               </div>
-              <div>
-                <div className='text-2xl font-bold'>
-                  {affiliations?.length || 0}
-                </div>
-                <div className='text-sm text-muted-foreground'>
-                  Total de Afiliações
-                </div>
+            <div>
+              <div className='text-2xl font-bold'>
+                {filteredAffiliations?.length || 0}
               </div>
+              <div className='text-sm text-muted-foreground'>
+                {searchName.trim() ? 'Afiliações encontradas' : 'Total de Afiliações'}
+              </div>
+            </div>
             </div>
             {showActions && (
               <Button
@@ -158,15 +166,20 @@ export const AffiliationsList = ({
       </Card>
 
       {/* Lista de Afiliações */}
-      {!affiliations || affiliations.length === 0 ? (
+      {!filteredAffiliations || filteredAffiliations.length === 0 ? (
         <Card>
           <CardContent className='p-8 text-center'>
             <Users className='h-12 w-12 mx-auto mb-4 text-muted-foreground' />
-            <h3 className='font-semibold mb-2'>Nenhuma afiliação cadastrada</h3>
+            <h3 className='font-semibold mb-2'>
+              {searchName.trim() ? 'Nenhuma afiliação encontrada' : 'Nenhuma afiliação cadastrada'}
+            </h3>
             <p className='text-sm text-muted-foreground mb-4'>
-              Cadastre a primeira afiliação para começar a gerenciar.
+              {searchName.trim() 
+                ? 'Tente usar outros termos de pesquisa.'
+                : 'Cadastre a primeira afiliação para começar a gerenciar.'
+              }
             </p>
-            {showActions && (
+            {showActions && !searchName.trim() && (
               <Button 
                 onClick={handleNewAffiliation} 
                 className='mobile-tap'
@@ -179,7 +192,7 @@ export const AffiliationsList = ({
         </Card>
       ) : (
         <div className='space-y-3'>
-          {affiliations.map((affiliation) => (
+          {filteredAffiliations.map((affiliation) => (
             <Card key={affiliation.id}>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>

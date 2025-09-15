@@ -80,6 +80,7 @@ const CustomerAccounts = () => {
     'clientes' | 'afiliacoes' | 'cadastrar'
   >('clientes');
   const [cadastroTab, setCadastroTab] = useState('client');
+  const [searchName, setSearchName] = useState('');
 
   const { getCurrentPosition } = useGeolocation();
 
@@ -92,6 +93,11 @@ const CustomerAccounts = () => {
       setSelectedAffiliationId(affiliationFilter);
     }
   }, [affiliationFilter]);
+
+  // Clear search when changing tabs
+  useEffect(() => {
+    setSearchName('');
+  }, [activeFilter]);
 
   // Fetch affiliations for filter
   const { data: affiliations = [] } = useQuery({
@@ -374,6 +380,13 @@ const CustomerAccounts = () => {
           (account) => account.client_id === filterByClient
         );
       }
+
+      // Filter by search name (for clients)
+      if (searchName.trim()) {
+        filtered = filtered.filter(
+          (account) => account.clients.name.toLowerCase().includes(searchName.toLowerCase())
+        );
+      }
     }
 
     return filtered;
@@ -383,6 +396,7 @@ const CustomerAccounts = () => {
     affiliationFilter,
     selectedAffiliationId,
     clientFilter,
+    searchName,
   ]);
 
   // Estatísticas gerais
@@ -418,22 +432,6 @@ const CustomerAccounts = () => {
   return (
     <MobileLayout title='Fichas dos Clientes' showBackButton backTo={backTo}>
       <div className='p-4 space-y-4'>
-        {/* Filtro por Afiliação - only show when not in cadastrar mode and not in afiliacoes view */}
-        {activeFilter !== 'cadastrar' && activeFilter !== 'afiliacoes' && (
-          <div className='space-y-2'>
-            <label className='text-sm font-medium text-muted-foreground'>
-              Filtrar por Afiliação
-            </label>
-            <AffiliationSearchInput
-              affiliations={affiliations}
-              value={selectedAffiliationId}
-              onValueChange={setSelectedAffiliationId}
-              placeholder='Todas as afiliações'
-              className='w-full'
-            />
-          </div>
-        )}
-
         {/* WhatsApp-style Pills Filter */}
         <div className='bg-background border-b border-border'>
           <div className='flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3'>
@@ -477,6 +475,39 @@ const CustomerAccounts = () => {
             </button>
           </div>
         </div>
+
+        {/* Campo de pesquisa por nome - WhatsApp style */}
+        {activeFilter !== 'cadastrar' && (
+          <div className='space-y-2'>
+            <input
+              type='text'
+              placeholder={
+                activeFilter === 'clientes' 
+                  ? 'Pesquisar cliente...' 
+                  : 'Pesquisar afiliação...'
+              }
+              value={searchName}
+              onChange={(e) => setSearchName(e.target.value)}
+              className='w-full px-4 py-3 bg-muted/50 border-0 rounded-2xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200'
+            />
+          </div>
+        )}
+
+        {/* Filtro por Afiliação - only show when not in cadastrar mode and not in afiliacoes view */}
+        {activeFilter !== 'cadastrar' && activeFilter !== 'afiliacoes' && (
+          <div className='space-y-2'>
+            <label className='text-sm font-medium text-muted-foreground'>
+              Filtrar por Afiliação
+            </label>
+            <AffiliationSearchInput
+              affiliations={affiliations}
+              value={selectedAffiliationId}
+              onValueChange={setSelectedAffiliationId}
+              placeholder='Todas as afiliações'
+              className='w-full'
+            />
+          </div>
+        )}
 
 
         {/* Content Area */}
@@ -525,7 +556,7 @@ const CustomerAccounts = () => {
         ) : activeFilter === 'afiliacoes' ? (
           /* Lista de Afiliações */
           <div className='space-y-4'>
-            <AffiliationsList />
+            <AffiliationsList searchName={searchName} />
           </div>
         ) : (
           /* Lista de Fichas */
