@@ -45,7 +45,7 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
   const [isLoadingCep, setIsLoadingCep] = useState(false);
   const [lastSearchedCep, setLastSearchedCep] = useState<string>('');
   const queryClient = useQueryClient();
-  const { register, handleSubmit, reset, setValue, control } =
+  const { register, handleSubmit, reset, setValue, control, formState: { errors } } =
     useForm<ClientFormData>();
 
   // Fetch affiliations for select
@@ -262,27 +262,34 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             <Label htmlFor='name'>Nome *</Label>
             <WhatsAppInput
               id='name'
-              {...register('name', { required: true })}
+              {...register('name', { required: 'Nome é obrigatório' })}
               placeholder='Nome completo do cliente'
+              className={errors.name ? 'border-destructive' : ''}
             />
+            {errors.name && (
+              <p className='text-xs text-destructive'>{errors.name.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='phone'>Telefone</Label>
+            <Label htmlFor='phone'>Telefone *</Label>
             <Controller
               name='phone'
               control={control}
-              rules={{ required: true }}
+              rules={{ required: 'Telefone é obrigatório' }}
               render={({ field }) => (
                 <PhoneInput
                   id='phone'
                   value={field.value}
                   onValueChange={field.onChange}
-                  className='mobile-input'
+                  className={`mobile-input ${errors.phone ? 'border-destructive' : ''}`}
                   placeholder='(11) 99999-9999'
                 />
               )}
             />
+            {errors.phone && (
+              <p className='text-xs text-destructive'>{errors.phone.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -320,14 +327,17 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
             <div className="relative">
               <WhatsAppInput
                 id='cep'
-                {...register('cep')}
+                {...register('cep', { required: 'CEP é obrigatório' })}
                 onChange={handleCepChange}
-                className='pr-10'
+                className={`pr-10 ${errors.cep ? 'border-destructive' : ''}`}
                 placeholder='00000-000'
                 maxLength={9}
               />
               <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
+            {errors.cep && (
+              <p className='text-xs text-destructive'>{errors.cep.message}</p>
+            )}
             {isLoadingCep && (
               <div className='text-xs text-primary flex items-center'>
                 <Loader2 className='h-3 w-3 animate-spin mr-1' />
