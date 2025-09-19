@@ -21,11 +21,13 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
 // WhatsApp-style input variant
 const WhatsAppInput = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
+    const hasError = className?.includes('border-destructive');
     return (
       <input
         type={type}
         className={cn(
-          "flex w-full px-4 py-3 bg-muted/50 border-0 rounded-2xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full px-4 py-3 bg-muted/50 rounded-2xl text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-background transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+          hasError ? "border-2 border-destructive" : "border-0",
           className
         )}
         ref={ref}
