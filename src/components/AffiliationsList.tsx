@@ -10,7 +10,8 @@ import {
   Trash2, 
   Users, 
   Phone,
-  AlertCircle 
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -193,7 +194,7 @@ export const AffiliationsList = ({
       ) : (
         <div className='space-y-3'>
           {filteredAffiliations.map((affiliation) => (
-            <Card key={affiliation.id}>
+            <Card key={affiliation.id} className="card-hover cursor-pointer" onClick={() => handleEdit(affiliation.id)}>
               <CardContent className='p-4'>
                 <div className='flex items-center justify-between'>
                   <div className='flex-1'>
@@ -215,48 +216,43 @@ export const AffiliationsList = ({
                   
                   {showActions && (
                     <div className='flex items-center space-x-2'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleEdit(affiliation.id)}
-                        className='mobile-tap h-8 w-8 p-0'
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant='ghost'
-                            size='sm'
-                            className='mobile-tap h-8 w-8 p-0 text-destructive hover:text-destructive'
-                          >
-                            <Trash2 className='h-4 w-4' />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className='flex items-center space-x-2'>
-                              <AlertCircle className='h-5 w-5 text-destructive' />
-                              <span>Confirmar exclusão</span>
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tem certeza que deseja excluir a afiliação "{affiliation.name}"? 
-                              Esta ação não pode ser desfeita.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteMutation.mutate(affiliation.id)}
-                              className='bg-destructive hover:bg-destructive/90'
-                              disabled={deleteMutation.isPending}
+                      <div className='flex items-center space-x-1'>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant='ghost'
+                              size='sm'
+                              className='mobile-tap h-8 w-8 p-0 text-destructive hover:text-destructive'
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              <Trash2 className='h-4 w-4' />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className='flex items-center space-x-2'>
+                                <AlertCircle className='h-5 w-5 text-destructive' />
+                                <span>Confirmar exclusão</span>
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tem certeza que deseja excluir a afiliação "{affiliation.name}"? 
+                                Esta ação não pode ser desfeita.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteMutation.mutate(affiliation.id)}
+                                className='bg-destructive hover:bg-destructive/90'
+                                disabled={deleteMutation.isPending}
+                              >
+                                {deleteMutation.isPending ? 'Excluindo...' : 'Excluir'}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                        <ChevronRight className='h-4 w-4 text-muted-foreground' />
+                      </div>
                     </div>
                   )}
                 </div>
