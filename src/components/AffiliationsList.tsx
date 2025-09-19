@@ -136,36 +136,6 @@ export const AffiliationsList = ({
 
   return (
     <div className='space-y-4'>
-      {/* Estatísticas */}
-      <Card>
-        <CardContent className='p-4'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-3'>
-              <div className='p-2 bg-primary/10 rounded-lg'>
-                <Users className='h-5 w-5 text-primary' />
-              </div>
-            <div>
-              <div className='text-2xl font-bold'>
-                {filteredAffiliations?.length || 0}
-              </div>
-              <div className='text-sm text-muted-foreground'>
-                {searchName.trim() ? 'Afiliações encontradas' : 'Total de Afiliações'}
-              </div>
-            </div>
-            </div>
-            {showActions && (
-              <Button
-                onClick={handleNewAffiliation}
-                className='mobile-tap'
-              >
-                <Plus className='h-4 w-4 mr-2' />
-                Nova
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Lista de Afiliações */}
       {!filteredAffiliations || filteredAffiliations.length === 0 ? (
         <Card>
