@@ -35,24 +35,12 @@ const CustomerAccountsRegister = () => {
           
           <MobileTabsContent value="client">
             <div className="p-4 space-y-4">
-              <div className="text-center space-y-2 mb-6">
-                <h2 className="text-xl font-semibold text-foreground">Novo Cliente</h2>
-                <p className="text-sm text-muted-foreground">
-                  Cadastre um novo cliente para o crediário
-                </p>
-              </div>
               <ClientForm onSuccess={handleFormSuccess} />
             </div>
           </MobileTabsContent>
           
           <MobileTabsContent value="affiliation">
             <div className="p-4 space-y-4">
-              <div className="text-center space-y-2 mb-6">
-                <h2 className="text-xl font-semibold text-foreground">Nova Afiliação</h2>
-                <p className="text-sm text-muted-foreground">
-                  Cadastre uma nova afiliação para o sistema
-                </p>
-              </div>
               <AffiliationForm onSuccess={handleFormSuccess} />
             </div>
           </MobileTabsContent>
