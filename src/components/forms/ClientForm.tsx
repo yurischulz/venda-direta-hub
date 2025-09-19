@@ -302,11 +302,14 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
                   id='cpf'
                   value={field.value}
                   onValueChange={field.onChange}
-                  className='mobile-input'
+                  className={`mobile-input ${errors.cpf ? 'border-destructive' : ''}`}
                   placeholder='000.000.000-00'
                 />
               )}
             />
+            {errors.cpf && (
+              <p className='text-xs text-destructive'>{errors.cpf.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -316,7 +319,11 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               type='email'
               {...register('email')}
               placeholder='cliente@email.com'
+              className={errors.email ? 'border-destructive' : ''}
             />
+            {errors.email && (
+              <p className='text-xs text-destructive'>{errors.email.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -352,7 +359,11 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
               id='address'
               {...register('address')}
               placeholder='Rua, Bairro, Cidade, Estado'
+              className={errors.address ? 'border-destructive' : ''}
             />
+            {errors.address && (
+              <p className='text-xs text-destructive'>{errors.address.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -362,7 +373,11 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
                 id='address_number'
                 {...register('address_number')}
                 placeholder='123'
+                className={errors.address_number ? 'border-destructive' : ''}
               />
+              {errors.address_number && (
+                <p className='text-xs text-destructive'>{errors.address_number.message}</p>
+              )}
             </div>
 
             <div className='space-y-2'>
@@ -371,7 +386,11 @@ export const ClientForm = ({ clientId, onSuccess }: ClientFormProps) => {
                 id='address_complement'
                 {...register('address_complement')}
                 placeholder='Apto 45, Bloco B'
+                className={errors.address_complement ? 'border-destructive' : ''}
               />
+              {errors.address_complement && (
+                <p className='text-xs text-destructive'>{errors.address_complement.message}</p>
+              )}
             </div>
           </div>
 
