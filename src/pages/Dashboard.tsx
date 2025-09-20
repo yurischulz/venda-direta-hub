@@ -15,7 +15,6 @@ import {
   TrendingUp,
   Package,
   HandCoins,
-  Network,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,24 +63,6 @@ const Dashboard = () => {
   });
 
   // Fetch affiliations for proximity check
-  const { data: affiliations = [] } = useQuery({
-    queryKey: ['affiliations'],
-    queryFn: async () => {
-      const userId = (await supabase.auth.getUser()).data.user?.id;
-      if (!userId) throw new Error('User not authenticated');
-
-      const { data, error } = await supabase
-        .from('affiliations')
-        .select('id, name, latitude, longitude')
-        .eq('user_id', userId)
-        .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', {
@@ -283,23 +264,6 @@ const Dashboard = () => {
               className='card-hover animate-slide-up'
               style={{ animationDelay: '0.3s' }}
             >
-              <Link to='/affiliations' className='block p-4'>
-                <div className='text-center space-y-3'>
-                  <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
-                    <Network className='h-6 w-6 text-primary' />
-                  </div>
-                  <div>
-                    <h3 className='font-medium'>Afiliações</h3>
-                    <p className='text-xs text-muted-foreground'>Gerenciar</p>
-                  </div>
-                </div>
-              </Link>
-            </Card>
-
-            <Card
-              className='card-hover animate-slide-up'
-              style={{ animationDelay: '0.4s' }}
-            >
               <Link to='/sales' className='block p-4'>
                 <div className='text-center space-y-3'>
                   <div className='mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center'>
@@ -315,7 +279,7 @@ const Dashboard = () => {
 
             <Card
               className='card-hover animate-slide-up'
-              style={{ animationDelay: '0.5s' }}
+              style={{ animationDelay: '0.4s' }}
             >
               <Link to='/payments' className='block p-4'>
                 <div className='text-center space-y-3'>
