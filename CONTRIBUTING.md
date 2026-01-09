@@ -9,6 +9,7 @@ Público alvo: PO e TL. Siga estas regras ao alterar a documentação:
 5. Adicione exemplos executáveis quando possível (comandos `npm run dev`, `npm run build`).
 
 Checklist de PRs de docs
+
 - [ ] Link para arquivos modificados
 - [ ] Se mudou schema: migration incluida
 - [ ] Se afetou RLS: notas para revisão do TL

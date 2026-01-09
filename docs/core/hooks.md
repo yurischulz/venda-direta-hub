@@ -3,6 +3,7 @@
 Resumo: coleção de hooks customizados usados pela aplicação.
 
 Hooks principais
+
 - `src/hooks/useGeolocation.ts` — captura de posição, tratamento de permissões e fallback Web/Nativo.
 - `src/hooks/use-optimized-query.ts` — adaptações para consultas com cache/invalidations.
 - `src/hooks/use-toast.ts` — wrapper de toasts (sonner).
